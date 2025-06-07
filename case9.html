@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case 9: Satellite Handover Optimization</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    />
+  </head>
+  <body class="case-page">
+    <h1>Satellite Handover Optimization using <span>Segment Trees</span></h1>
+
+    <div class="case-section">
+      <h3>Introduction</h3>
+      <p>
+        Imagine you're on a very important video call using Starlink, and your
+        connection suddenly drops for a second. This is often due to a
+        "handover" – your device switching from one satellite to the next as
+        they fly overhead. This business case is about making these handovers
+        invisible and perfectly smooth, like a baton pass in a relay race where
+        you never even notice the exchange. We can do this by
+        <strong>
+          predicting the best time and best new satellite to switch to, before
+          your current connection starts to degrade
+        </strong>
+      </p>
+    </div>
+
+    <div class="case-section">
+      <h3>Current System</h3>
+      <p>
+        Starlink satellites perform user device handovers based on line-of-sight
+        (LOS) and fixed schedules, using signal strength and orbital proximity.
+        [Source: FCC Filing on Starlink Switching Latency, 2023]
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Problem</h3>
+      <ul>
+        <li>
+          Delayed or poorly timed handovers cause jitter and packet loss,
+          disrupting real-time applications like VoIP and streaming.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Optimization</h3>
+      <p>
+        Use Segment Tree to query optimal satellites (minimum latency, maximum
+        signal strength) in O(log N) time, and a neural network (TensorFlow) to
+        predict signal strength for proactive handovers.
+      </p>
+      <p>
+        Once we have the prediction from the neural network part, we organize
+        them into Segment Tree. It allows us to very quickly (in mere
+        microseconds - O(log N) time) ask questions like: "Among all satellites
+        available in the next 10 seconds, which one will offer the best signal
+        strength?" or "What's the absolute best signal I can expect in the next
+        30 seconds, and when will it occur?"
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Why Segment Tree?</h3>
+      <p>
+        Segment Tree, enables fast O(log N) queries for optimal satellites.
+        Neural networks predict signal trends, ensuring proactive handovers.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Usage</h3>
+      <p>
+        As a vehicle travels from Los Angeles to San Diego, the Segment Tree
+        queries optimal Starlink satellites every 5 seconds, with neural network
+        predictions ensuring seamless handovers.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>System Design</h3>
+      <div style="text-align: center">
+        <img src="assets/img/case9.png" alt="System Design" />
+      </div>
+      <p>
+        <strong>Diagram Description:</strong> Satellite signal data is processed
+        by a neural network predictor, stored in a Segment Tree for fast
+        queries, and used to make handover decisions with feedback to the
+        network.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Code</h3>
+      <div class="case-code">
+        <pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras import layers, models
+import random
+
+# --- 1. Neural Network (NN) Signal Predictor Module ---
+class SignalPredictor:
+    """
+    Predicts future signal strength and latency for specific satellites.
+    This class simulates the core role of a trained Neural Network in
+    forecasting communication link quality.
+    """
+    def __init__(self, input_features_size):
+        # input_features_size: Number of features describing the context for prediction.
+        # e.g., (user_lat, user_lon, user_alt, satellite_id, time_offset_from_now)
+        self.input_features_size = input_features_size
+        self.model = self._build_model()
+        
+        # Simulate training for demonstration
+        self._simulate_training()
+
+    def _build_model(self):
+        """
+        Builds a simple neural network architecture.
+        In a real scenario, this model would be trained on historical data
+        of satellite signals, user locations, satellite trajectories, etc.
+        """
+        model = models.Sequential([
+            # Input layer: takes features like user location, satellite ID, time
+            layers.Dense(128, activation='relu', input_shape=(self.input_features_size,)),
+            layers.Dense(64, activation='relu'),
+            # Output layer: predicts a single value (e.g., signal strength in dBm)
+            layers.Dense(1, activation='linear')
+        ])
+        model.compile(optimizer='adam', loss='mse') # Mean Squared Error is common for regression
+        return model
+
+    def _simulate_training(self):
+        """
+        Simulates the training of the neural network.
+        In a real system, X_train would be real contextual data and y_train
+        would be actual measured signal strengths for those contexts.
+        """
+        print("Simulating Neural Network training...")
+        # X: (user_lat, user_lon, user_alt, satellite_id_norm, time_offset_norm)
+        # y: actual signal strength
+        num_samples = 5000
+        # Random inputs representing diverse scenarios
+        X_train = np.random.rand(num_samples, self.input_features_size) * 100 # Scale inputs
+        # Simulate signal strength, e.g., higher for closer satellites/optimal times
+        y_train = (70 + 30 * np.sin(X_train[:, 0] / 10) + 20 * np.cos(X_train[:, 4] / 5) 
+                   + 10 * np.random.randn(num_samples)).reshape(-1, 1)
+        y_train = np.clip(y_train, 60, 100) # Clip signals to a plausible range
+        
+        self.model.fit(X_train, y_train, epochs=5, verbose=0)
+        print("Neural Network training simulation complete.")
+
+    def predict_signal(self, input_features):
+        """
+        Predicts signal strength based on given input features.
+        Args:
+            input_features (np.array): A 1D numpy array of features
+                                       (e.g., [user_lat, user_lon, user_alt, sat_id, time_offset]).
+        Returns:
+            float: The predicted signal strength.
+        """
+        # Reshape input for model prediction (batch size of 1)
+        prediction = self.model.predict(input_features.reshape(1, -1), verbose=0)[0][0]
+        # Ensure prediction is within a reasonable range (e.g., 60-100 dBm for signal quality)
+        return max(60, min(100, int(prediction))) # Convert to int for easier handling
+
+# --- 2. Segment Tree for Optimal Querying ---
+class SegmentTree:
+    """
+    A Segment Tree designed to query for the optimal (maximum) value
+    within a given range, storing not just the value but also an associated ID
+    (e.g., time slot or satellite ID).
+    Each node stores a tuple: (max_value, identifier).
+    """
+    def __init__(self, data_tuples):
+        """
+        Initializes the segment tree.
+        Args:
+            data_tuples (list): List of (value, identifier) tuples.
+                                e.g., [(signal, time_slot_index), ...]
+        """
+        if not data_tuples:
+            raise ValueError("Data cannot be empty for SegmentTree initialization.")
+        
+        self.n = len(data_tuples)
+        # Tree will store (value, identifier) tuples
+        # Initialize with a neutral 'bad' value for max query (e.g., (-inf, -1))
+        self.tree = [(-float('inf'), -1)] * (2 * self.n)
+
+        # Build phase: populate leaf nodes
+        for i in range(self.n):
+            self.tree[self.n + i] = data_tuples[i]
+        
+        # Build phase: populate parent nodes from children
+        # Parent node value is the max of its children
+        for i in range(self.n - 1, 0, -1):
+            left_child = self.tree[i << 1] # i * 2
+            right_child = self.tree[i << 1 | 1] # i * 2 + 1
+            self.tree[i] = max(left_child, right_child) # max based on the 'value' part of the tuple
+
+    def range_query(self, l, r):
+        """
+        Queries for the optimal (maximum) signal strength and its identifier
+        within the range [l, r) (inclusive start, exclusive end).
+        Args:
+            l (int): Start index of the query range.
+            r (int): End index of the query range (exclusive).
+        Returns:
+            tuple: (max_value, identifier) within the queried range.
+        Raises:
+            ValueError: If the query range is invalid.
+        """
+        if l < 0 or r > self.n or l >= r:
+            raise ValueError(f"Invalid query range: [{l}, {r}). Data size: {self.n}")
+        
+        l += self.n
+        r += self.n
+        
+        # Initialize result with a neutral 'bad' value
+        res = (-float('inf'), -1) 
+        
+        while l < r:
+            if l & 1: # If left child is odd, it's a right child of its parent, include it
+                res = max(res, self.tree[l])
+                l += 1
+            if r & 1: # If right child is odd, it's a right child of its parent, include it
+                r -= 1 # Move to the left child of its parent, this node is covered
+                res = max(res, self.tree[r])
+            
+            l >>= 1 # l = l // 2 (move to parent)
+            r >>= 1 # r = r // 2 (move to parent)
+        return res
+
+    def update(self, idx, new_value_tuple):
+        """
+        Updates the value at a specific index in the underlying data array
+        and propagates the change up the tree.
+        Args:
+            idx (int): The index to update (0-based).
+            new_value_tuple (tuple): The new (value, identifier) tuple for this index.
+        Raises:
+            ValueError: If the index is invalid.
+        """
+        if not 0 <= idx < self.n:
+            raise ValueError(f"Invalid index: {idx}. Data size: {self.n}")
+        
+        idx += self.n # Go to the leaf node
+        self.tree[idx] = new_value_tuple
+        
+        # Propagate update up to the root
+        while idx > 1:
+            idx >>= 1 # Move to parent
+            self.tree[idx] = max(self.tree[idx << 1], self.tree[idx << 1 | 1])
+
+
+# --- Main Simulation Logic for Handover Optimization ---
+
+# Define simulation parameters
+NUM_SATELLITES = 10 # Number of candidate satellites visible/approaching
+PREDICTION_HORIZON_SECONDS = 30 # How far into the future we predict
+TIME_RESOLUTION_SECONDS = 1 # Granularity of prediction intervals
+NUM_TIME_SLOTS = PREDICTION_HORIZON_SECONDS // TIME_RESOLUTION_SECONDS
+
+# Initialize Neural Network Predictor
+# Input features could be: [user_lat, user_lon, user_alt, satellite_id_normalized, time_offset_normalized]
+signal_predictor = SignalPredictor(input_features_size=5)
+
+# Simulate current user context (these would come from real sensors)
+current_user_location = [12.9716, 77.5946, 100] # Lat, Lon, Altitude (e.g., Bengaluru)
+
+# --- Step 1: Neural Network Predicts Future Signal Strengths ---
+print(f"\n--- Predicting Signals for {NUM_SATELLITES} Satellites over {PREDICTION_HORIZON_SECONDS} seconds ---")
+# Stores predicted signals for each satellite at each time slot:
+# {time_slot_index: {satellite_id: predicted_signal_strength}}
+all_predictions = {} 
+
+for time_slot_idx in range(NUM_TIME_SLOTS):
+    time_offset_seconds = time_slot_idx * TIME_RESOLUTION_SECONDS
+    all_predictions[time_slot_idx] = {}
+    
+    for sat_id in range(NUM_SATELLITES):
+        # Prepare input features for NN
+        # (user_lat, user_lon, user_alt, satellite_id_norm, time_offset_norm)
+        # Normalize sat_id and time_offset for NN input if needed
+        sat_id_norm = sat_id / NUM_SATELLITES
+        time_offset_norm = time_offset_seconds / PREDICTION_HORIZON_SECONDS
+        
+        input_features = np.array([
+            current_user_location[0], current_user_location[1], current_user_location[2],
+            sat_id_norm, time_offset_norm
+        ])
+        
+        predicted_signal = signal_predictor.predict_signal(input_features)
+        all_predictions[time_slot_idx][sat_id] = predicted_signal
+        # print(f"  T={time_offset_seconds}s, Sat {sat_id}: {predicted_signal} dBm")
+
+# --- Step 2: Populate Segment Tree with Optimal Signal for each Time Slot ---
+print("\n--- Populating Segment Tree with Best Predicted Signal per Time Slot ---")
+segment_tree_data = [] # Will store (max_signal, satellite_id) for each time slot
+
+for time_slot_idx in range(NUM_TIME_SLOTS):
+    best_signal_for_slot = -float('inf')
+    best_sat_for_slot = -1
+    
+    # Find the best satellite for this specific time slot
+    for sat_id, predicted_signal in all_predictions[time_slot_idx].items():
+        if predicted_signal > best_signal_for_slot:
+            best_signal_for_slot = predicted_signal
+            best_sat_for_slot = sat_id
+    
+    segment_tree_data.append((best_signal_for_slot, best_sat_for_slot))
+    # print(f"  Time Slot {time_slot_idx} (T={time_slot_idx*TIME_RESOLUTION_SECONDS}s): Best Sat {best_sat_for_slot} with {best_signal_for_slot} dBm")
+
+try:
+    segment_tree = SegmentTree(segment_tree_data)
+    print("\nSegment Tree initialized.")
+
+    # --- Step 3: Query Segment Tree for Handover Decision ---
+    # We want to find the optimal handover opportunity in the next few seconds.
+    query_start_time_offset = 0 # Query from current moment
+    query_end_time_offset = 10 # Query up to 10 seconds into the future (exclusive)
+    
+    # Convert time offsets to segment tree indices
+    query_start_idx = query_start_time_offset // TIME_RESOLUTION_SECONDS
+    query_end_idx = query_end_time_offset // TIME_RESOLUTION_SECONDS
+    
+    print(f"\n--- Querying Segment Tree for Optimal Handover in next {query_end_time_offset} seconds ---")
+    optimal_handover_opportunity = segment_tree.range_query(query_start_idx, query_end_idx)
+
+    predicted_best_signal = optimal_handover_opportunity[0]
+    predicted_best_sat_id = optimal_handover_opportunity[1]
+    
+    if predicted_best_sat_id != -1:
+        # Find the exact time slot when this best signal is predicted to occur
+        # This is a simplified search; in a real system, the Segment Tree might store this directly
+        # or the NN would predict the exact time.
+        optimal_time_slot_idx = -1
+        for i, (signal, sat_id) in enumerate(segment_tree_data[query_start_idx:query_end_idx]):
+            if signal == predicted_best_signal and sat_id == predicted_best_sat_id:
+                optimal_time_slot_idx = i + query_start_idx
+                break
+        
+        optimal_time_seconds = optimal_time_slot_idx * TIME_RESOLUTION_SECONDS
+        
+        print(f"Optimal Handover Opportunity:")
+        print(f"  Predicted Best Signal: {predicted_best_signal} dBm")
+        print(f"  Recommended Satellite ID: {predicted_best_sat_id}")
+        print(f"  Predicted Time for Handover: Approximately {optimal_time_seconds} seconds from now.")
+        print("  (This decision would trigger a proactive handover.)")
+    else:
+        print("No viable handover opportunity found in the queried range.")
+
+    # --- Visualization (Conceptual) ---
+    plt.figure(figsize=(12, 6))
+    
+    # Extract just the signal strengths for plotting
+    signals_for_plot = [item[0] for item in segment_tree_data]
+    time_labels = [f"T+{i*TIME_RESOLUTION_SECONDS}s" for i in range(NUM_TIME_SLOTS)]
+    
+    plt.plot(signals_for_plot, label='Predicted Best Signal (per time slot)', color='blue', marker='o', linestyle='-')
+    
+    # Highlight the query range
+    plt.axvspan(query_start_idx, query_end_idx - 1, alpha=0.2, color='orange', label=f'Query Range ({query_end_time_offset}s horizon)')
+    
+    # Highlight the optimal point within the query range
+    if predicted_best_sat_id != -1:
+        plt.scatter(optimal_time_slot_idx, predicted_best_signal, color='red', s=100, zorder=5, 
+                    label=f'Optimal Handover Point ({predicted_best_signal} dBm, Sat {predicted_best_sat_id})')
+        
+    plt.xlabel(f'Time Slot (each {TIME_RESOLUTION_SECONDS} second)')
+    plt.ylabel('Predicted Signal Strength (dBm)')
+    plt.title('Predicted Optimal Satellite Signal Over Time for Handover')
+    plt.xticks(np.arange(NUM_TIME_SLOTS), time_labels, rotation=45, ha='right')
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('handover_plot.png')
+    plt.close()
+
+except ValueError as e:
+    print(f"Error: {e}")
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+</code></pre>
+      </div>
+    </div>
+    <div class="case-section">
+      <h3>Complexity Analysis</h3>
+      <p>
+        The Segment Tree + Neural Network module has the following complexities:
+      </p>
+      <ul>
+        <li>
+          <strong>Segment Tree</strong>: Construction time is O(N), query and
+          update time is O(log N), where N is data points. Space is O(N).
+        </li>
+        <li>
+          <strong>Neural Network</strong>: Training time is O(E * B * F * H),
+          where E is epochs, B is batch size, F is features, H is hidden units.
+          Inference time is O(F * H). Space is O(F * H + H^2 + B * H).
+        </li>
+        <li>
+          <strong>Combined</strong>: Time is O(N + Q * log N + E * B * F * H),
+          where Q is queries. Space is O(N + F * H + H^2 + B * H).
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Real-World Impact</h3>
+
+      <ul>
+        <li>Ensures seamless streaming and VoIP.</li>
+        <li>Minimizes packet loss during handovers.</li>
+        <li>Reduces jitter.</li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>References</h3>
+      <ul>
+        <li>
+          Bender, M. A., & Farach-Colton, M. (2000). The LCA Problem Revisited.
+          <i>Latin American Symposium on Theoretical Informatics.</i>
+          https://doi.org/10.1007/10719839_20
+        </li>
+        <li>
+          FCC. (2023). Starlink Switching Protocols and Latency.
+          <i>Regulatory Filing.</i>
+        </li>
+      </ul>
+    </div>
+    <a href="index.html" class="back-button">Back to Home</a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/2.0.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/2.0.0/components/prism-python.min.js"></script>
+  </body>
+</html>

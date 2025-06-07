@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case 8: Real-Time Traffic Congestion Prediction</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    />
+  </head>
+  <body class="case-page">
+    <h1>
+      Real-Time Traffic Congestion Prediction via
+      <span>Reinforcement Learning + Graph Algorithms</span>
+    </h1>
+
+    <div class="case-section">
+      <h3>Introduction</h3>
+      <p>
+        Imagine driving in a city, and your navigation app always knows the
+        fastest route, not just right now, but a few minutes into the future.
+        This case is about using Starlink's high-speed connectivity to bring
+        that predictive power to city traffic.
+        <strong>
+          Let's build a system that can predict traffic jams before they fully
+          form</strong
+        >
+        and <strong> then instantly suggest optimal alternate routes </strong>,
+        making urban travel smoother and saving lives in emergencies.
+      </p>
+    </div>
+
+    <div class="case-section">
+      <h3>Current System</h3>
+      <p>
+        Starlink connects smart city sensors (e.g., traffic cameras, GPS nodes)
+        for real-time data, but routing and congestion analysis rely on reactive
+        shortest-path algorithms, lacking predictive capabilities. [Source:
+        Starlink Urban Mobility Pilot, 2022]
+      </p>
+    </div>
+
+    <div class="case-section">
+      <h3>Problem</h3>
+      <ul>
+        <li>
+          Reactive congestion analysis causes delays in urban hotspots,
+          impacting navigation apps and emergency response coordination.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Optimization</h3>
+      <p>
+        Apply Reinforcement Learning (RL, TensorFlow) to predict traffic
+        congestion based on real-time sensor data, and Dijkstra’s algorithm to
+        suggest optimal alternate routes on a weighted congestion graph.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Why This Approach?</h3>
+      <p>
+        RL, is AI technique, adapts to dynamic traffic patterns via Starlink’s
+        real-time data. Dijkstra’s algorithm, a course graph method, ensures
+        optimal route suggestions for congested urban networks.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Usage</h3>
+      <p>
+        At 8:00 AM in Bangalore, RL predicts congestion at Hebbal flyover.
+        Dijkstra suggests alternate routes via Starlink-connected sensors,
+        easing traffic flow.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>System Design</h3>
+      <div style="text-align: center">
+        <img src="assets/img/case8.png" alt="System Design" />
+      </div>
+      <p>
+        <strong>Diagram Description:</strong> Smart city sensors feed data to an
+        RL predictor, which updates a congestion graph. Dijkstra’s algorithm
+        suggests optimal routes, with feedback to refine predictions.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Code</h3>
+      <div class="case-code">
+        <pre><code class="language-python">import numpy as np
+import numpy as np
+import matplotlib.pyplot as plt
+import heapq
+import tensorflow as tf
+from tensorflow.keras import layers, models
+import networkx as nx
+
+# --- 1. Reinforcement Learning (RL) Predictor Module ---
+class TrafficRL:
+    """
+    Simulates a Reinforcement Learning agent for traffic congestion prediction.
+    In a full implementation, this agent would learn optimal policies
+    through interaction with a simulated or real traffic environment.
+    For this example, it will *simulate* predicting congestion weights
+    based on a simplified input 'state' and a base graph structure.
+    """
+    def __init__(self, state_space_size, action_space_size):
+        # state_space_size: Number of features describing the traffic state (e.g., historical speeds,
+        #                   time of day, event data, sensor readings).
+        # action_space_size: Number of possible congestion levels or adjustments for graph edges.
+        self.state_space_size = state_space_size
+        self.action_space_size = action_space_size # Represents number of edges/segments to predict
+        self.model = self._build_model()
+        self.gamma = 0.9 # Discount factor for future rewards (standard RL parameter)
+
+    def _build_model(self):
+        """
+        Builds a simple neural network that would form the policy network
+        of our RL agent. It maps input 'states' to 'actions' (predicted values).
+        In a real RL setup, this model would be trained via algorithms like
+        Q-learning or policy gradients.
+        """
+        model = models.Sequential([
+            # Input layer: Takes in the state features (e.g., 10 sensor readings)
+            layers.Dense(64, activation='relu', input_shape=(self.state_space_size,)),
+            # Hidden layers to learn complex patterns
+            layers.Dense(32, activation='relu'),
+            # Output layer: Predicts 'action' values. For congestion prediction,
+            # this might map to a congestion score for each road segment.
+            layers.Dense(self.action_space_size, activation='linear')
+        ])
+        # Compile the model for training (e.g., with Adam optimizer and MSE loss)
+        # In actual RL, loss function depends on the specific RL algorithm (e.g., Bellman equation for Q-learning)
+        model.compile(optimizer='adam', loss='mse')
+        return model
+
+    def train(self, environment_feedback):
+        """
+        Placeholder for the RL training loop.
+        In a real scenario, this method would take 'environment_feedback'
+        (e.g., state, action taken, reward received, next_state)
+        and update the model's weights to learn optimal policies.
+        e.g., self.model.fit(states, target_q_values)
+        """
+        print("RL model training would occur here using rewards from real-world outcomes.")
+        # For demonstration, we're skipping actual training.
+        # A real RL training loop would involve:
+        # 1. Interacting with a traffic simulation or real environment.
+        # 2. Collecting (state, action, reward, next_state) tuples.
+        # 3. Using these to update the neural network weights.
+
+    def get_predicted_congestion_weights(self, state, graph_edges):
+        """
+        Simulates the RL model's prediction of congestion weights for graph edges.
+        In a real trained RL model, this prediction would be learned.
+        Here, we'll generate plausible, dynamic weights based on the input state.
+        The output is a dictionary mapping (u, v) edge tuples to predicted weights.
+        """
+        # A real RL model would output learned values. Here, we simulate it.
+        # The 'action_space_size' should ideally match the number of edges.
+        # For simplicity, we'll map a generic prediction to edge weights.
+        
+        # Ensure the state has the correct shape for the model
+        state_input = state.reshape(1, -1) # Reshape for single prediction
+
+        # Get raw prediction from the (untrained) model
+        raw_predictions = self.model.predict(state_input, verbose=0)[0]
+        
+        # Map predictions to a plausible range for traffic weights (e.g., 1 to 20 for travel time)
+        # Scale raw predictions to a relevant range for edge weights
+        # This is a simplification. A real RL might output direct congestion levels or time multipliers.
+        scaled_predictions = (raw_predictions - raw_predictions.min()) / (raw_predictions.max() - raw_predictions.min() + 1e-9) * 15 + 5 # Scale to 5-20 range
+
+        # Assign these scaled predictions to graph edges.
+        # This requires the RL model's output actions to correspond to specific graph edges.
+        # For this example, let's assume a simple mapping based on edge order.
+        predicted_weights = {}
+        # Ensure we have enough predictions for all edges.
+        # For a dynamic graph, the RL agent needs to predict for specific routes/segments.
+        
+        # Simple mapping: iterate through graph edges and assign a simulated weight
+        # This assumes the RL 'actions' or predictions correspond to edges.
+        # In a real system, the RL model's output layer would be structured
+        # to directly predict values for specific, identifiable road segments.
+        
+        # We need a stable order of edges to map RL output to.
+        # Let's create an ordered list of edges from the graph object.
+        ordered_edges = sorted(list(graph_edges)) # Sort for consistent mapping
+        
+        for i, (u, v) in enumerate(ordered_edges):
+            # Use a modulo to cycle through predictions if there are fewer predictions than edges
+            # or map specific predictions to specific critical edges.
+            # Here, we just use the scaled_predictions as the new weight.
+            # We'll make congestion vary slightly based on state input.
+            congestion_factor = np.mean(state) * 5 # A simple way state influences congestion
+            
+            # Simulated prediction: base weight + some variance + congestion factor
+            # Ensure index for scaled_predictions doesn't exceed bounds
+            weight_idx = i % len(scaled_predictions)
+            predicted_weight = max(1, int(scaled_predictions[weight_idx] + congestion_factor * np.random.uniform(0.5, 1.5)))
+            predicted_weights[(u, v)] = predicted_weight
+            predicted_weights[(v, u)] = predicted_weight # Assuming bidirectional graph
+            
+        return predicted_weights
+
+# --- 2. Dijkstra's Algorithm Module ---
+def dijkstra(graph, start, end):
+    """
+    Dijkstra's algorithm for finding the shortest path in a weighted graph.
+    Args:
+        graph (networkx.Graph): A graph where edge weights represent costs (e.g., travel time).
+        start: The starting node.
+        end: The destination node.
+    Returns:
+        tuple: A tuple containing the shortest path (list of nodes) and its total cost.
+    Raises:
+        ValueError: If graph or nodes are invalid.
+    """
+    if not isinstance(graph, nx.Graph):
+        raise ValueError("Graph must be a networkx.Graph object.")
+    if start not in graph or end not in graph:
+        raise ValueError("Start or end node not in graph.")
+
+    distances = {node: float('inf') for node in graph.nodes}
+    distances[start] = 0
+    pq = [(0, start)] # Priority queue: (distance, node)
+    came_from = {} # To reconstruct the path
+
+    while pq:
+        curr_dist, curr = heapq.heappop(pq)
+
+        if curr == end:
+            break
+
+        if curr_dist > distances[curr]:
+            continue
+
+        # Iterate through neighbors and their weights (congestion)
+        for neighbor in graph.neighbors(curr):
+            # Get the weight (predicted congestion/travel time) from the edge attribute
+            weight = graph[curr][neighbor].get('weight', 1) # Default to 1 if no weight
+            
+            distance = curr_dist + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                came_from[neighbor] = curr
+                heapq.heappush(pq, (distance, neighbor))
+
+    path = []
+    curr = end
+    while curr in came_from:
+        path.append(curr)
+        curr = came_from[curr]
+    path.append(start)
+    
+    if distances[end] == float('inf'):
+        return [], float('inf') # No path found
+        
+    return path[::-1], distances[end] # Return path in correct order and total cost
+
+# --- Main Execution / Simulation ---
+
+# 1. Define the base traffic network (nodes and initial, static edges)
+# We'll use networkx for better graph handling
+G = nx.Graph()
+G.add_edges_from([
+    (0, 1), (0, 2),
+    (1, 2), (1, 3),
+    (2, 3), (2, 4), # Node 4 added to extend the graph
+    (3, 4)
+])
+
+# Initialize initial (base) weights. These would typically be base travel times.
+initial_weights = {
+    (0, 1): 5, (0, 2): 10,
+    (1, 2): 3, (1, 3): 8,
+    (2, 3): 4, (2, 4): 7,
+    (3, 4): 6
+}
+# Apply initial weights to the graph edges
+for (u, v), weight in initial_weights.items():
+    G[u][v]['weight'] = weight # Networkx stores edge attributes as dictionaries
+
+# --- Simulation Setup ---
+# Simulate a state (e.g., sensor readings, time of day, event data)
+# This 'state' would dynamically change in a real system based on sensor input.
+# For demonstration, let's create a random state vector.
+# The size of the state vector (10) should match state_space_size in TrafficRL.
+current_sensor_state = np.random.rand(10) # Example: 10 sensor readings
+
+# Initialize the RL Predictor. Action space size needs to be large enough to cover edges.
+# We'll pass the number of unique edges for simplicity.
+num_unique_edges = len(G.edges)
+rl_predictor = TrafficRL(state_space_size=10, action_space_size=num_unique_edges * 2) # *2 for bidirectional representation if needed, or just num_unique_edges
+
+try:
+    print("--- Simulating Traffic Congestion Prediction ---")
+    
+    # Simulate RL predicting congestion weights based on the current state
+    # This method dynamically updates the weights on the graph
+    predicted_weights = rl_predictor.get_predicted_congestion_weights(current_sensor_state, G.edges())
+
+    # Create a *new* graph with the predicted weights for Dijkstra's
+    # This ensures Dijkstra uses the dynamically predicted congestion.
+    congested_graph = nx.Graph()
+    congested_graph.add_nodes_from(G.nodes) # Add all nodes
+    for u, v in G.edges():
+        # Retrieve the predicted weight for this edge from the RL output
+        # Use .get() with a default to handle cases where an edge might not be in predicted_weights (unlikely here)
+        weight_uv = predicted_weights.get((u, v), initial_weights.get((u,v), 1)) # Default to initial or 1
+        congested_graph.add_edge(u, v, weight=weight_uv)
+
+    print("\nPredicted Congestion Weights (sample):")
+    # Print a few to see the dynamic changes
+    for i, edge in enumerate(list(congested_graph.edges)[:5]):
+        u, v = edge
+        print(f"  Edge ({u}, {v}): Weight = {congested_graph[u][v]['weight']}")
+
+    # Define start and end points for the route
+    start_node = 0
+    end_node = 4
+
+    # Run Dijkstra's on the dynamically weighted (congested) graph
+    path, cost = dijkstra(congested_graph, start_node, end_node)
+
+    print(f"\nOptimal Route from {start_node} to {end_node}: {path}, Predicted Cost: {cost}")
+
+    # --- Visualization ---
+    plt.figure(figsize=(10, 8))
+    pos = nx.spring_layout(G, seed=42) # Layout for consistent visualization
+
+    # Draw nodes and base edges
+    nx.draw_networkx_nodes(G, pos, node_color='lightblue', node_size=700)
+    nx.draw_networkx_labels(G, pos, font_size=10, font_weight='bold')
+
+    # Draw edges with predicted weights
+    edge_labels = nx.get_edge_attributes(congested_graph, 'weight')
+    nx.draw_networkx_edges(congested_graph, pos, edge_color='gray', width=1, alpha=0.7)
+    nx.draw_networkx_edge_labels(congested_graph, pos, edge_labels=edge_labels, font_color='darkgreen')
+
+    # Highlight the optimal path
+    if path:
+        path_edges = list(zip(path[:-1], path[1:]))
+        nx.draw_networkx_edges(congested_graph, pos, edgelist=path_edges, edge_color='red', width=3)
+        # Add a small text for the path cost
+        plt.text(0.5, 0.95, f'Optimal Path Cost: {cost}', horizontalalignment='center',
+                 transform=plt.gca().transAxes, fontsize=12, color='blue', bbox=dict(facecolor='white', alpha=0.7))
+
+    plt.title('Traffic Network with Predicted Congestion & Optimal Path')
+    plt.axis('off') # Hide axes
+    plt.savefig('traffic_route_plot.png')
+    plt.close()
+
+except ValueError as e:
+    print(f"Error: {e}")
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+</code></pre>
+      </div>
+    </div>
+    <div class="case-section">
+      <h3>Complexity Analysis</h3>
+      <p>
+        The Reinforcement Learning + Dijkstra module has the following
+        complexities:
+      </p>
+      <ul>
+        <li>
+          <strong>RL</strong>: Training time is O(E * B * F * H), where E is
+          episodes, B is batch size, F is state features, H is hidden units.
+          Inference time is O(F * H). Space is O(F * H + H^2 + B * H).
+        </li>
+        <li>
+          <strong>Dijkstra</strong>: Time is O((V + E) log V), where V is nodes
+          and E is edges. Space is O(V + E).
+        </li>
+        <li>
+          <strong>Combined</strong>: Time is O(E * B * F * H + (V + E) log V).
+          Space is O(F * H + H^2 + B * H + V + E).
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Real-World Impact</h3>
+
+      <ul>
+        <li>Improves urban traffic flow via Starlink’s sensor connectivity.</li>
+        <li>Enhances emergency response coordination.</li>
+        <li>Supports intelligent transportation systems.</li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>References</h3>
+      <ul>
+        <li>
+          Sutton, R. S., & Barto, A. G. (2018).
+          <i>Reinforcement Learning: An Introduction</i> (2nd ed.). MIT Press.
+        </li>
+        <li>Starlink. (2022). Urban Mobility Pilot. <i>Internal Report.</i></li>
+      </ul>
+    </div>
+    <a href="index.html" class="back-button">Back to Home</a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/2.0.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/2.0.0/components/prism-python.min.js"></script>
+  </body>
+</html>

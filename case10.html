@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case 11: Solar Storm Resilience</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    />
+  </head>
+  <body class="case-page">
+    <h1>
+      Solar Storm Resilience through
+      <span>Satellite Drag Prediction & Preemptive Orbit Management</span>
+    </h1>
+    <div class="case-section">
+      <h3>Current Scenario (Backed by Real Events)</h3>
+
+      <ul>
+        <li>
+          <strong>February 2022</strong>: A geomagnetic storm caused by a
+          coronal mass ejection (CME) led to the
+          <strong>loss of 38 newly launched Starlink satellites</strong> due to
+          increased atmospheric drag.
+        </li>
+        <li>
+          <strong>May 2024</strong>: An extreme geomagnetic storm caused
+          <strong>orbital decay and reentry of 12 Starlink satellites</strong>.
+        </li>
+        <li>
+          <strong>October 2024</strong>: A geomagnetic storm may have
+          accelerated the
+          <strong>premature reentry of one Starlink satellite (SL-1089)</strong
+          >.
+        </li>
+        <li>
+          <strong>Cause</strong>: Solar activity (e.g., solar flares, CMEs)
+          heats Earth’s upper atmosphere, increasing
+          <strong>atmospheric density</strong> and
+          <strong>aerodynamic drag</strong> on low-Earth orbit (LEO) satellites,
+          causing altitude loss and reentry.
+        </li>
+        <li>
+          <strong>Challenge</strong>: Starlink relies on preemptive launch
+          delays or reactive maneuvers, lacking an
+          <strong>AI/algorithm-driven system</strong> for dynamic drag
+          forecasting and optimized orbit adjustments.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Problem</h3>
+      <ul>
+        <li>Unpredicted drag during solar storms causes satellite loss.</li>
+        <li>Reactive maneuvers are inefficient, consuming excessive fuel.</li>
+        <li>
+          No system integrates spatial drag hotspots, resource constraints, and
+          scheduling for preemptive orbit management.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Proposed Optimization</h3>
+      <p>
+        Prevent satellite loss by predicting drag-influenced orbital risks using
+        ML and identifying high-drag zones with 2D Kadane’s Algorithm. Select
+        satellites for maneuvers using an approximate Subset Sum algorithm and
+        schedule burns with Stable Marriage, optimizing within fuel and ground
+        station constraints.
+      </p>
+      <table>
+        <tr>
+          <th>Component</th>
+          <th>Technique</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>Drag Forecasting</td>
+          <td>ML Regression / LSTM</td>
+          <td>
+            Predict atmospheric density using solar indicators (KP index, solar
+            flux, magnetometer readings).
+          </td>
+        </tr>
+        <tr>
+          <td>Orbit Risk Mapping</td>
+          <td>2D Kadane’s Algorithm</td>
+          <td>
+            Identify maximum drag zones (“hotspots”) across lat-long grid cells.
+          </td>
+        </tr>
+        <tr>
+          <td>Preemptive Orbit Planning</td>
+          <td>Subset Sum (DP)</td>
+          <td>
+            Select satellites in high-drag zones for adjustment within
+            fuel/power budgets, approximated as discrete units.
+          </td>
+        </tr>
+        <tr>
+          <td>Burn Scheduling</td>
+          <td>Stable Marriage Algorithm</td>
+          <td>
+            Match satellites to burn windows based on drag risk and ground
+            station visibility.
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="case-section">
+      <h3>Why These Algorithms?</h3>
+      <p>
+        2D Kadane’s, efficiently identifies high-drag zones in a spatial grid.
+        Subset Sum (approximated via DP) optimizes satellite selection under
+        resource constraints.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>How It’s Optimized</h3>
+      <p>
+        Predicts drag to preemptively adjust orbits, reducing satellite loss.
+        Optimizes fuel by selecting only high-risk satellites and scheduling
+        efficient burns, enhancing resilience during geomagnetic storms.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Usage</h3>
+      <p>
+        Before a solar storm, ingest solar activity data (KP index, solar flux)
+        to predict drag intensities. Use 2D Kadane’s to locate high-drag zones
+        (e.g., polar regions). Apply Subset Sum to select satellites in these
+        zones for maneuvers within fuel limits. Use Stable Marriage to assign
+        burn windows, ensuring ground station visibility. For example, if 10
+        satellites are at risk in a high-drag zone, the system maneuvers only 4
+        critical ones, saving fuel.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>System Design</h3>
+      <div style="text-align: center">
+        <img src="assets/img/case10.png" alt="System Design" />
+      </div>
+
+      <p>
+        <strong>Diagram Description:</strong> Space weather data (KP index,
+        solar flux) feeds into the ML-based Drag Forecast Model, which predicts
+        atmospheric density. The Heatmap Generator uses 2D Kadane’s to identify
+        high-drag zones, visualized as a 2D heatmap with red shading for
+        hotspots. Satellite orbital data informs the Subset Sum Planner to
+        select satellites for maneuvers, and the Burn Window Matcher (Stable
+        Marriage) schedules burns based on ground station visibility.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Code</h3>
+      <div class="case-code">
+        <pre><code class="language-python">import numpy as np
+
+# --- Placeholder Preference Functions for Stable Marriage ---
+# In a real system, these would be complex functions based on:
+# - Satellite preference for a window: lowest expected drag during that window,
+#   optimal thruster firing angles, minimal interruption to service, etc.
+# - Window preference for a satellite: highest drag risk of satellite,
+# # availability of ground station for that satellite, minimal disruption to other schedules.
+
+def compute_sat_pref(satellite_id, burn_window_id):
+    """
+    Simulates a satellite's preference for a burn window.
+    Higher value means higher preference.
+    For demonstration, let's use a simple heuristic.
+    A satellite might prefer windows that are 'closer' to its ID (arbitrary for demo)
+    or have an optimal 'visibility score' (simulated).
+    """
+    # Simulate a preference based on (arbitrary) window suitability
+    # For instance, windows with higher IDs might be 'better' or 'more available'
+    # Or, it could be a random preference for demonstration purposes.
+    # Here, let's say a window is preferred if its ID is 'close' to the satellite ID,
+    # or if it has an intrinsically good 'score'.
+    window_score = burn_window_id % 10 # Simple score for window
+    sat_id_influence = satellite_id % 5 # Simple influence for satellite
+    return (window_score * 2) + sat_id_influence + np.random.rand() * 5 # Add randomness for varied prefs
+
+def compute_win_pref(burn_window_id, satellite_id):
+    """
+    Simulates a burn window's preference for a satellite.
+    Higher value means higher preference.
+    A window might prefer a satellite that has high drag risk, or is easily
+    accessible (e.g., currently visible to ground station).
+    """
+    # Simulate a preference based on satellite's simulated drag risk
+    # Higher satellite ID might imply higher risk (arbitrary for demo)
+    # Or, the window prefers satellites that are 'more critical' or 'more in danger'.
+    sat_risk_score = satellite_id * 3 # Higher ID, higher risk
+    window_avail_score = burn_window_id / 2 # Windows prefer certain types of satellites
+    return sat_risk_score + window_avail_score + np.random.rand() * 10 # Add randomness for varied prefs
+
+
+# 2D Kadane's Algorithm for Drag Hotspot Detection
+def kadane_2d(matrix):
+    """
+    Find the sub-rectangle with maximum drag intensity in a lat-long grid.
+
+    Args:
+        matrix (list): 2D grid of drag intensities (from ML predictions).
+
+    Returns:
+        tuple: (max_sum, top, left, bottom, right) - intensity and hotspot boundaries.
+    """
+    if not matrix or not matrix[0]:
+        raise ValueError("Invalid matrix")
+    rows, cols = len(matrix), len(matrix[0])
+    max_sum = float('-inf')
+    max_top, max_left, max_bottom, max_right = 0, 0, 0, 0
+
+    for left in range(cols):
+        temp = [0] * rows
+        for right in range(left, cols):
+            for i in range(rows):
+                temp[i] += matrix[i][right]
+            # 1D Kadane's
+            curr_sum = max_here = temp[0]
+            curr_top = curr_bottom = 0
+            temp_top = 0
+            for i in range(1, rows):
+                if temp[i] > max_here + temp[i]: # Start new sub-array if current element is greater than sum
+                    max_here = temp[i]
+                    temp_top = i
+                else: # Continue adding
+                    max_here += temp[i]
+                
+                # Update 1D maximum sum and its boundaries
+                if max_here > curr_sum:
+                    curr_sum = max_here
+                    curr_top = temp_top
+                    curr_bottom = i
+            
+            # Update 2D maximum sum and its boundaries
+            if curr_sum > max_sum:
+                max_sum = curr_sum
+                max_top, max_left = curr_top, left
+                max_bottom, max_right = curr_bottom, right
+    return max_sum, max_top, max_left, max_bottom, max_right
+
+# Example drag map (10x10 grid, values from ML-predicted density)
+drag_map = np.random.uniform(0.1, 0.6, (10, 10)).tolist()
+intensity, top, left, bottom, right = kadane_2d(drag_map)
+print(f"Max Drag Hotspot: Intensity={intensity:.2f}, Region=({top},{left}) to ({bottom},{right})")
+
+# Approximate Subset Sum for Satellite Selection (Pseudocode)
+def subset_sum_approx(satellites, fuel_budget):
+    """
+    Select satellites for maneuvers within fuel budget.
+
+    Args:
+        satellites (list): List of (satellite_id, fuel_cost, drag_risk) tuples.
+        fuel_budget (float): Total fuel available (approximated as int).
+
+    Returns:
+        list: Selected satellite IDs.
+    """
+    # Approximate fuel costs as integers (e.g., round to nearest 10)
+    # This scales continuous fuel costs to integers suitable for DP
+    scaled_budget = int(fuel_budget * 10) 
+    scaled_costs = [int(s[1] * 10) for s in satellites]
+    
+    n = len(satellites)
+    # dp[i][j] is True if sum 'j' can be formed using first 'i' satellites
+    dp = [[False] * (scaled_budget + 1) for _ in range(n + 1)]
+    dp[0][0] = True # Sum 0 is always possible with 0 items
+
+    for i in range(1, n + 1):
+        for j in range(scaled_budget + 1):
+            # Case 1: Don't include the i-th satellite
+            dp[i][j] = dp[i-1][j]
+            # Case 2: Include the i-th satellite if its cost allows
+            if j >= scaled_costs[i-1]:
+                dp[i][j] = dp[i][j] or dp[i-1][j - scaled_costs[i-1]]
+    
+    # Backtrack to find the satellites selected
+    selected = []
+    j = scaled_budget
+    # Find the largest sum <= scaled_budget that is possible
+    while j >= 0 and not dp[n][j]:
+        j -= 1
+    
+    # Reconstruct the subset that yields this sum
+    for i in range(n, 0, -1):
+        # If dp[i][j] is True AND dp[i-1][j] is False, it means
+        # the i-th satellite was necessary to achieve sum j
+        if j >= scaled_costs[i-1] and dp[i][j] and not dp[i-1][j]:
+            selected.append(satellites[i-1][0])
+            j -= scaled_costs[i-1]
+    
+    return selected[::-1] # Return in original order or sorted
+
+# Example for Subset Sum
+satellites_at_risk = [
+    (101, 2.5, 0.8),  # ID, fuel_cost (units), drag_risk (0-1)
+    (102, 1.0, 0.5),
+    (103, 3.0, 0.9),
+    (104, 1.5, 0.7),
+    (105, 2.0, 0.6)
+]
+available_fuel = 4.0
+selected_sats = subset_sum_approx(satellites_at_risk, available_fuel)
+print(f"Selected Satellites for Maneuvers: {selected_sats} (from a budget of {available_fuel} fuel units)")
+
+
+# Stable Marriage for Burn Scheduling (Pseudocode)
+def stable_marriage(satellites, burn_windows):
+    """
+    Match satellites to burn windows. This implementation uses the Gale-Shapley algorithm
+    where satellites propose to burn windows.
+
+    Args:
+        satellites (list): List of satellite IDs.
+        burn_windows (list): List of burn window IDs.
+
+    Returns:
+        dict: {satellite: burn_window} matches.
+    """
+    free_sats = list(satellites) # Initialize all satellites as free
+    matches = {} # Stores current matches: {burn_window: satellite}
+
+    # Generate preference lists for satellites and burn windows
+    # sat_prefs: {satellite_id: [preferred_window_id_1, ...]}
+    # win_prefs: {burn_window_id: [preferred_satellite_id_1, ...]}
+    # Preferences are sorted from most preferred to least preferred
+    sat_prefs = {s: sorted(burn_windows, key=lambda w: -compute_sat_pref(s, w)) for s in satellites}
+    win_prefs = {w: sorted(satellites, key=lambda s: -compute_win_pref(w, s)) for w in burn_windows}
+    
+    # Keep track of which burn window a satellite has already proposed to
+    next_proposal_idx = {s: 0 for s in satellites}
+
+    while free_sats:
+        s = free_sats[0] # Get the first free satellite
+        
+        # Satellite s proposes to its next preferred burn window
+        w = sat_prefs[s][next_proposal_idx[s]]
+        next_proposal_idx[s] += 1 # Move to the next preference for future proposals
+
+        if w not in matches:
+            # If the burn window w is free, it accepts s
+            matches[w] = s
+            free_sats.remove(s)
+        else:
+            # If burn window w is already engaged to curr_s
+            curr_s = matches[w]
+            # Check if w prefers s over curr_s
+            # We need to find the rank of s and curr_s in w's preference list
+            # A lower index means higher preference
+            if win_prefs[w].index(s) < win_prefs[w].index(curr_s):
+                # w prefers s, so w breaks engagement with curr_s and accepts s
+                matches[w] = s
+                free_sats.remove(s)
+                free_sats.append(curr_s) # curr_s becomes free again
+            # else (w prefers curr_s), s remains free and proposes to next preferred window
+    
+    # Reformat matches for output: {satellite: burn_window}
+    final_matches = {s: w for w, s in matches.items()}
+    return final_matches
+
+# Example for Stable Marriage
+# Assuming we have 5 selected satellites from Subset Sum and 5 available burn windows
+mock_sat_ids = [101, 103, 104, 105] # Example satellites selected from subset sum
+mock_burn_window_ids = ['W1', 'W2', 'W3', 'W4'] # Example burn window IDs
+
+# Ensure the number of satellites and windows is equal for stable marriage demo
+# Or handle cases where they are unequal (some might not get matched)
+# For simplicity, let's make them equal or ensure burn_windows has enough capacity
+if len(mock_sat_ids) > len(mock_burn_window_ids):
+    print("\nWarning: More satellites than burn windows. Some satellites might not be matched.")
+    # For a robust demo, you might need to adjust sizes or the algorithm handling
+    # Here, Gale-Shapley ensures all men (satellites) propose until matched or exhausted preferences.
+    # If len(men) > len(women), some men will remain unmatched.
+
+# For demonstration, let's ensure equal numbers or enough windows
+if len(mock_sat_ids) > len(mock_burn_window_ids):
+    # If more satellites than windows, some will be unmatched.
+    # For a stable matching, typically num_men == num_women is assumed for full matching.
+    # Let's adjust so we have a meaningful example.
+    # We'll just take min(len(sats), len(windows)) for actual pairing.
+    # In reality, you'd feed in the actual available resources.
+    num_to_match = min(len(mock_sat_ids), len(mock_burn_window_ids))
+    sats_for_matching = random.sample(mock_sat_ids, num_to_match) # Randomly pick some for demo
+    windows_for_matching = random.sample(mock_burn_window_ids, num_to_match)
+else:
+    sats_for_matching = mock_sat_ids
+    windows_for_matching = mock_burn_window_ids
+
+if sats_for_matching and windows_for_matching:
+    matches = stable_marriage(sats_for_matching, windows_for_matching)
+    print("\nSatellite to Burn Window Matches (Stable Marriage):")
+    for s_id, w_id in matches.items():
+        print(f"  Satellite {s_id} matched with Burn Window {w_id}")
+else:
+    print("\nNot enough satellites or burn windows to perform stable marriage matching.")
+
+
+# Placeholder for ML/LSTM (Conceptual)
+def lstm_drag_forecast(solar_data):
+    """
+    Predict atmospheric density using LSTM.
+
+    Args:
+        solar_data (list): Time-series of KP index, solar flux, magnetometer readings.
+
+    Returns:
+        list: Predicted density grid.
+    """
+    # This function would contain the trained TensorFlow/Keras LSTM model
+    # It would ingest solar_data (e.g., shape: (timesteps, features))
+    # And output a predicted density grid (e.g., shape: (latitude_res, longitude_res))
+    # For a placeholder, let's return a dummy drag_map
+    print("\n(LSTM Drag Forecast model would run here, predicting the drag_map)")
+    return np.random.uniform(0.1, 0.6, (10, 10)).tolist()
+
+# Simulate the full pipeline (conceptual call)
+print("\n--- Simulating Full Solar Storm Resilience Pipeline ---")
+# 1. Simulate incoming solar data
+current_solar_data = [[np.random.rand() for _ in range(3)] for _ in range(5)] # Example: 5 timesteps, 3 features
+predicted_drag_map = lstm_drag_forecast(current_solar_data)
+
+# 2. Identify hotspots using 2D Kadane's
+intensity, top, left, bottom, right = kadane_2d(predicted_drag_map)
+print(f"Identified Hotspot: Intensity={intensity:.2f}, Region=({top},{left}) to ({bottom},{right})")
+
+# 3. Filter satellites in hotspot and prepare for Subset Sum
+# (This step is conceptual; involves checking satellite current/future positions against hotspot)
+# For demo, let's use the 'satellites_at_risk' from before.
+selected_sats_for_maneuver = subset_sum_approx(satellites_at_risk, available_fuel)
+print(f"Satellites Selected for Maneuver: {selected_sats_for_maneuver}")
+
+# 4. Schedule burns using Stable Marriage
+# mock_burn_window_ids depends on available ground station contacts
+# In a real system, burn windows would be generated dynamically based on GS visibility
+mock_burn_window_ids_full = ['W_early_A', 'W_early_B', 'W_mid_A', 'W_mid_B', 'W_late_A', 'W_late_B'] # More windows than sats
+matches = stable_marriage(selected_sats_for_maneuver, mock_burn_window_ids_full)
+print("Final Burn Schedule:")
+for s_id, w_id in matches.items():
+    print(f"  Satellite {s_id} scheduled for Burn Window {w_id}")
+
+print("\n--- Pipeline Simulation Complete ---")
+</code></pre>
+      </div>
+    </div>
+    <div class="case-section">
+      <h3>Impact</h3>
+      <table>
+        <tr>
+          <th>Factor</th>
+          <th>Improvement</th>
+        </tr>
+        <tr>
+          <td>Satellite Failures</td>
+          <td>
+            Reduced by preemptively maneuvering high-risk satellites out of drag
+            hotspots.
+          </td>
+        </tr>
+        <tr>
+          <td>Uptime & Reliability</td>
+          <td>Improved by maintaining orbits during geomagnetic storms.</td>
+        </tr>
+        <tr>
+          <td>Fuel Consumption</td>
+          <td>
+            Optimized by selecting only high-risk satellites for maneuvers,
+            reducing unnecessary burns.
+          </td>
+        </tr>
+        <tr>
+          <td>AI Readiness</td>
+          <td>
+            Enhanced with ML-driven drag predictions, enabling proactive
+            resilience.
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="case-section">
+      <h3>Complexity Analysis</h3>
+      <p>
+        The LSTM + 2D Kadane’s + Subset Sum + Stable Marriage module has the
+        following complexities:
+      </p>
+      <ul>
+        <li>
+          <strong>LSTM</strong>: Training time is O(E * T * F * H), where E is
+          epochs, T is sequence length, F is features, H is hidden units.
+          Inference time is O(T * F * H). Space is O(F * H + H^2 + T * H).
+        </li>
+        <li>
+          <strong>2D Kadane’s</strong>: Time is O(R^2 * C), where R is grid
+          rows, C is grid columns. Space is O(R * C + R).
+        </li>
+        <li>
+          <strong>Subset Sum</strong>: Time is O(S * B), where S is satellites,
+          B is fuel budget (scaled). Space is O(S * B + S).
+        </li>
+        <li>
+          <strong>Stable Marriage</strong>: Time is O(S * W), where S is
+          satellites, W is burn windows. Space is O(S * W + S).
+        </li>
+        <li>
+          <strong>Combined</strong>: Time is O(E * T * F * H + R^2 * C + S * B +
+          S * W). Space is O(F * H + H^2 + T * H + R * C + S * B + S * W).
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Reflection</h3>
+      <p>
+        Developing this case was a rewarding challenge, combining course
+        algorithms with AI to address a pressing issue for Starlink—satellite
+        loss during solar storms. The strength of the solution lies in its
+        multi-layered approach: 2D Kadane’s efficiently identifies drag
+        hotspots, Subset Sum optimizes resource use, and Stable Marriage ensures
+        practical scheduling, while ML/LSTM adds predictive power. This mirrors
+        the portfolio’s goal of blending theory with real-world applications, as
+        seen in Cases 3 (PageRank) and 5 (Stable Marriage). However, limitations
+        include the computational complexity of Subset Sum for large satellite
+        fleets and the reliance on accurate solar data, which can be noisy. I
+        learned how to integrate disparate algorithms into a cohesive system and
+        the importance of approximating NP-complete problems like Subset Sum for
+        practicality. Future improvements could involve parallelizing 2D
+        Kadane’s for global grids or using reinforcement learning for dynamic
+        orbit planning, as in Case 8. This case reinforced my ability to apply
+        algorithmic thinking to complex networking challenges, preparing me for
+        future work in space technology.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>References</h3>
+      <ul>
+        <li>
+          Dang, T., Li, X., Luo, B., Li, R., Zhang, B., Pham, K., ... & Wang, Y.
+          (2022). Unveiling the space weather during the Starlink satellites
+          destruction event on 4 February 2022. <i>Space Weather, 20</i>(8),
+          e2022SW003152. https://doi.org/10.1029/2022SW003152
+        </li>
+        <li>
+          Oliveira, D. M., Zesta, E., & Nandy, D. (2025). The 10 October 2024
+          geomagnetic storm may have caused the premature reentry of a Starlink
+          satellite. <i>Frontiers in Astronomy and Space Sciences, 11</i>,
+          1522139. https://doi.org/10.3389/fspas.2024.1522139
+        </li>
+        <li>
+          Oliveira, D. M., et al. (2024). Loss of 12 Starlink satellites due to
+          pre-conditioning of intense space weather activity surrounding the
+          extreme geomagnetic storm of 10 May 2024. <i>arXiv preprint</i>.
+          https://arxiv.org/abs/2410.15678
+        </li>
+        <li>
+          GeeksforGeeks. (n.d.). Maximum sum rectangle in a 2D matrix | DP-27.
+          Retrieved from
+          https://www.geeksforgeeks.org/maximum-sum-rectangle-in-a-2d-matrix-dp-27/
+        </li>
+        <li>
+          NOAA Space Weather Prediction Center. (n.d.). Planetary K-index.
+          Retrieved from https://www.swpc.noaa.gov/products/planetary-k-index
+        </li>
+        <li>
+          NASA Solar Science. (n.d.). Solar storm alerts. Retrieved from
+          https://solarscience.msfc.nasa.gov
+        </li>
+      </ul>
+    </div>
+    <a href="index.html" class="back-button">Back to Home</a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  </body>
+</html>

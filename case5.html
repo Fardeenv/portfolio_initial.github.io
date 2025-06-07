@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case 5: Stable User-Satellite Matching</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    />
+  </head>
+  <body class="case-page">
+    <h1>
+      Stable User-Satellite Matching via <span>Stable Marriage Algorithm</span>
+    </h1>
+    <div class="case-section">
+      <h3>Introduction</h3>
+      <p>
+        Imagine Starlink's user terminals (your dishes) and the satellites in
+        the sky. Currently, they pair up like someone grabbing the first open
+        seat on a crowded bus – it gets you a seat, but maybe not the best one,
+        and you might have to keep moving if a "better-looking" seat appears,
+        even if it's just for a moment. This business case suggests we make
+        these pairings more like a "stable marriage" where both the user and the
+        satellite are reasonably happy with their partner, and neither wants to
+        "cheat" with someone else, minimizing annoying re-connections.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Current System</h3>
+      <p>
+        Starlink’s user terminals associate with satellites based on received
+        signal strength indicator (RSSI) and shortest path via ISLs, using a
+        greedy, first-available scheme. This approach prioritizes immediate
+        connectivity but ignores long-term stability, especially in dense urban
+        areas with multiple visible satellites. [Source: Starlink Patent Filing
+        on Beam Switching, 2022]
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Problem</h3>
+      <ul>
+        <li>
+          Suboptimal user-satellite pairings in dense urban areas lead to
+          frequent handovers, causing packet loss and disrupting real-time
+          applications like VoIP and video streaming.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Optimization</h3>
+      <p>
+        Model user-satellite assignments as a Stable Marriage Problem (SMP).
+        Users rank satellites based on RSSI and stability (e.g., predicted
+        visibility duration from orbital data). Satellites rank users based on
+        expected data load (e.g., bandwidth demand) and mobility (e.g.,
+        stationary vs. mobile terminals). Apply Gale-Shapley algorithm to
+        compute stable matchings, handling unequal sets by allowing unassigned
+        users to retry in the next cycle.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Why This Algorithm?</h3>
+      <p>
+        Gale-Shapley, a algorithm, ensures stable user-satellite pairings where
+        no user and satellite prefer different matches, minimizing handover
+        churn in Starlink’s dynamic LEO network and enhancing QoS.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Usage</h3>
+      <p>
+        In a city with 6 satellites visible and 300 users, the stable marriage
+        algorithm prevents reassignment churn by maintaining stable matches
+        unless a better-ranked satellite becomes available.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>System Design</h3>
+      <img src="assets/img/case5.png" alt="System Design" />
+      <p>
+        <strong>Diagram Description:</strong> Users and satellites provide
+        preference rankings based on RSSI, stability, load, and mobility. The
+        SMP Matcher applies the Gale-Shapley algorithm to produce stable
+        user-satellite assignments.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Code</h3>
+      <div class="case-code">
+        <pre><code class="language-python">import matplotlib.pyplot as plt
+import networkx as nx
+
+def stable_marriage(proposers_prefs, acceptors_prefs):
+    """
+    Implements the Gale-Shapley algorithm to compute a stable matching between users (proposers)
+    and satellites (acceptors), ensuring no pair prefers a different match.
+
+    Args:
+        proposers_prefs (dict): Dictionary where keys are user IDs (e.g., 'U1') and values are
+                                lists of satellite IDs (e.g., ['S1', 'S2']), ordered by preference
+                                (most preferred first, based on RSSI and stability).
+        acceptors_prefs (dict): Dictionary where keys are satellite IDs (e.g., 'S1') and values are
+                                lists of user IDs, ordered by preference (based on data load and mobility).
+
+    Returns:
+        dict: A dictionary mapping satellite IDs to assigned user IDs (e.g., {'S1': 'U2'}).
+
+    Raises:
+        ValueError: If preference dictionaries are empty or contain invalid entries.
+    """
+    if not proposers_prefs or not acceptors_prefs:
+        raise ValueError("Preference dictionaries cannot be empty")
+
+    free_proposers = list(proposers_prefs.keys())
+    engagements = {}
+    acceptors_rank_map = {a: {p: i for i, p in enumerate(prefs)} for a, prefs in acceptors_prefs.items()}
+    next_proposal_idx = {p: 0 for p in proposers_prefs}
+
+    while free_proposers:
+        proposer = free_proposers[0]
+        if next_proposal_idx[proposer] >= len(proposers_prefs[proposer]):
+            print(f"Warning: Proposer {proposer} exhausted options")
+            free_proposers.pop(0)
+            continue
+        acceptor = proposers_prefs[proposer][next_proposal_idx[proposer]]
+        next_proposal_idx[proposer] += 1
+        if acceptor not in acceptors_prefs:
+            raise ValueError(f"Invalid acceptor {acceptor} in proposer {proposer}'s preferences")
+        if acceptor not in engagements:
+            engagements[acceptor] = proposer
+            free_proposers.pop(0)
+        else:
+            current_partner = engagements[acceptor]
+            if acceptors_rank_map[acceptor][proposer] < acceptors_rank_map[acceptor][current_partner]:
+                engagements[acceptor] = proposer
+                free_proposers.pop(0)
+                free_proposers.append(current_partner)
+
+    return engagements
+
+def visualize_matching(assignments, users_pref, satellites_pref):
+    """
+    Visualizes the stable matching as a bipartite graph using Matplotlib and NetworkX.
+
+    Args:
+        assignments (dict): Stable matching {satellite: user}.
+        users_pref (dict): User preference dictionary for node IDs.
+        satellites_pref (dict): Satellite preference dictionary for node IDs.
+    """
+    G = nx.Graph()
+    for user in users_pref:
+        G.add_node(user, bipartite=0)
+    for sat in satellites_pref:
+        G.add_node(sat, bipartite=1)
+    for sat, user in assignments.items():
+        G.add_edge(user, sat)
+    pos = nx.bipartite_layout(G, users_pref.keys())
+    plt.figure(figsize=(8, 6))
+    nx.draw(G, pos, with_labels=True,
+            node_color=['blue' if n in users_pref else 'green' for n in G.nodes],
+            node_size=500)
+    plt.title('Stable User-Satellite Matchings')
+    plt.savefig('stable_matching_plot.png')
+    plt.close()
+
+# Example usage
+if __name__ == "__main__":
+    users_pref = {
+        'U1': ['S1', 'S2', 'S3'],
+        'U2': ['S2', 'S1', 'S3'],
+        'U3': ['S1', 'S3', 'S2']
+    }
+    satellites_pref = {
+        'S1': ['U2', 'U1', 'U3'],
+        'S2': ['U1', 'U2', 'U3'],
+        'S3': ['U3', 'U1', 'U2']
+    }
+    try:
+        assignments = stable_marriage(users_pref, satellites_pref)
+        print("Stable Assignments (Satellite: User):", {s: u for s, u in assignments.items()})
+        visualize_matching(assignments, users_pref, satellites_pref)
+    except ValueError as e:
+        print(f"Error: {e}")
+</code></pre>
+      </div>
+    </div>
+    <div class="case-section">
+      <h3>Complexity Analysis</h3>
+      <p>The Gale-Shapley module has the following complexities:</p>
+      <ul>
+        <li>
+          <strong>Time Complexity</strong>: O(N^2), where N is the number of
+          users or satellites.
+        </li>
+        <li>
+          <strong>Space Complexity</strong>: O(N^2) for preference lists, plus
+          O(N) for engagement tracking.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Real-World Impact</h3>
+
+      <ul>
+        <li>
+          Minimizes link-flapping by ensuring stable user-satellite pairings.
+        </li>
+        <li>Optimizes satellite load distribution.</li>
+        <li>
+          Enhances user experience for real-time applications like streaming in
+          high-density urban zones.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>References</h3>
+      <ul>
+        <li>
+          Gale, D., & Shapley, L. S. (1962). College admissions and the
+          stability of marriage.
+          <i>The American Mathematical Monthly, 69</i>(1), 9–15.
+          https://doi.org/10.2307/2312726
+        </li>
+        <li>
+          Starlink. (2022). Beam handover switching optimization.
+          <i>U.S. Patent Filing</i>.
+        </li>
+      </ul>
+    </div>
+    <a href="index.html" class="back-button">Back to Home</a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  </body>
+</html>

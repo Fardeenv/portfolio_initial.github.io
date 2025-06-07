@@ -1,25 +1,31 @@
+html
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Your Portfolio</title>
-    <!-- Link to Google Fonts and CSS -->
+    <title>Fardeen Vaddo's Portfolio</title>
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    />
   </head>
   <body>
     <!-- Header Section -->
     <header>
-      <div class="logo">My Portfolio</div>
+      <div class="logo">Fardeen Vaddo's Portfolio</div>
       <ul>
         <li><a href="#home">Home</a></li>
         <li><a href="#about">About</a></li>
-        <li><a href="#projects">Domain Description</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#domain">Domain Description</a></li>
+        <li><a href="#projects">Business Cases</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </header>
@@ -33,24 +39,31 @@
             A <span>Developer & Tech Enthusiast</span>
           </h2>
           <p class="hero-section__desc">
-            I have worked on Networking, Web Development, AI/ML, and Blockchain
-            related projects. Skilled in various frameworks, I enjoy building
-            practical and clean tech solutions.
+            In this portfolio, we’re diving deep into Starlink’s business cases
+            — one algorithm at a time.
           </p>
+          <p>
+            The journey won’t be smooth. But then again, anything worth building
+            never is.
+          </p>
+
+          <p>Let’s dive in and explore the tech behind the star⭐</p>
+          <br />
         </div>
 
         <ul class="social-icons">
-          <!-- Social Icons -->
           <li>
-            <a href="" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+            <a href="#" target="_blank"
+              ><i class="fa-brands fa-facebook"></i
+            ></a>
           </li>
           <li>
-            <a href="www.linkedin.com/in" target="_blank"
+            <a href="https://www.linkedin.com/in/fardeen-vaddo" target="_blank"
               ><i class="fa-brands fa-linkedin"></i
             ></a>
           </li>
           <li>
-            <a href="https://github.com" target="_blank"
+            <a href="https://github.com/fardeenvaddo" target="_blank"
               ><i class="fa-brands fa-github"></i
             ></a>
           </li>
@@ -59,7 +72,7 @@
         <div class="hero-buttons">
           <button class="btn btn-primary">
             <a
-              href="./assets"
+              href="./assets/Fardeen_Vaddo_CV.pdf"
               download
               style="color: white; text-decoration: none"
               >Download CV</a
@@ -74,7 +87,7 @@
       </div>
 
       <div class="hero-img">
-        <img src="assets/img/profile.jpg" alt="Fardeen Portfolio" width="300" />
+        <img src="assets/img/profile.jpg" alt="Fardeen Vaddo" width="300" />
       </div>
     </section>
 
@@ -87,108 +100,401 @@
       <div class="about-content">
         <h4>About Me</h4>
         <h2>I am a Developer &<br /><span>Tech Enthusiast</span></h2>
+
         <p>
-          Hello there! I'm Fardeen vaddo, a student at KLE Technological
-          University, pursuing Computer Science and Engineering. I’m very
-          interested in fields like Networking,Web Development, AI/ML, and
-          Blockchain and I have worked in them. I enjoy building practical
-          projects, solving problems, and continuously exploring new tools and
-          technologies. Feel free to browse through my portfolio
+          Hi there! I'm Fardeen, a Computer Science & Engineering student at
+          <strong>KLE Technological University</strong>.
         </p>
 
-        <button class="btn btn-primary">
-          <a href="https://github.com/fardeenvaddo" target="_blank">
-            Know More <i class="fa-solid fa-arrow-right-to-bracket"></i>
-          </a>
-        </button>
+        <p>
+          My interests span across <strong>Networking</strong>,
+          <strong>AI/ML</strong>, <strong>Web Development</strong>, and
+          <strong>Blockchain</strong>. I love combining theory with real-world
+          use cases to create meaningful solutions.
+        </p>
+        <p>
+          <em>What keeps me going?</em> Curiosity, clean code, and the thrill of
+          solving complex problems (with or without Stack Overflow ...).
+        </p>
+        <p>
+          Outside of coding, you’ll find me exploring new tech tools, debugging
+          for fun, and sometimes playing outdoor games.
+        </p>
+        <p>Let’s build something impactful and usefull for the society.</p>
       </div>
     </section>
 
-    <section class="projects-section">
-      <h2>Domain Description</h2>
+    <!-- Skills Section -->
+    <!-- Skills Section -->
+    <section class="skills-section" id="skills">
+      <h2>Skills <span>My Expertise</span></h2>
       <p>
-        <strong>Starlink</strong> is a satellite internet constellation operated
-        by SpaceX, aimed at providing high-speed, low-latency internet access
-        globally, especially in remote and underserved regions. Leveraging a
-        mesh of thousands of Low Earth Orbit (LEO) satellites, Starlink
-        revolutionizes modern communication infrastructure by reducing
-        dependence on traditional ground-based networks. It supports industries
-        like maritime, aviation, military, and rural broadband through scalable,
-        resilient, and efficient satellite-based connectivity solutions.
+        Below is a showcase of my technical skills across various domains, with
+        proficiency levels indicated by progress bars.
       </p>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <div class="skill-header">
+            <i class="fas fa-code skill-icon"></i>
+            <h4>C</h4>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 85%">
+              <span class="progress-label">85%</span>
+            </div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-header">
+            <i class="fab fa-python skill-icon"></i>
+            <h4>Python</h4>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 90%">
+              <span class="progress-label">90%</span>
+            </div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-header">
+            <i class="fab fa-js skill-icon"></i>
+            <h4>JavaScript</h4>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 80%">
+              <span class="progress-label">80%</span>
+            </div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-header">
+            <i class="fab fa-react skill-icon"></i>
+            <h4>React</h4>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 75%">
+              <span class="progress-label">75%</span>
+            </div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-header">
+            <i class="fas fa-network-wired skill-icon"></i>
+            <h4>Networking</h4>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 85%">
+              <span class="progress-label">85%</span>
+            </div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-header">
+            <i class="fas fa-brain skill-icon"></i>
+            <h4>AI/ML</h4>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 80%">
+              <span class="progress-label">80%</span>
+            </div>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-header">
+            <i class="fas fa-link skill-icon"></i>
+            <h4>Blockchain</h4>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 70%">
+              <span class="progress-label">70%</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- Projects Section -->
-    <!-- Starlinks Business Cases Section -->
+    <!-- Domain Description Section -->
+    <section class="projects-section" id="domain">
+      <h2>Domain Description <span>Starlink Networking</span></h2>
+      <div class="domain-content">
+        <div class="domain-subsection">
+          <h3>Introduction</h3>
+          <p>
+            Starlink, a SpaceX initiative, is a satellite internet constellation
+            designed to provide high-speed, low-latency broadband access
+            worldwide. Operating over 7,000 low-Earth orbit (LEO) satellites at
+            550–1,200 km altitudes, Starlink uses inter-satellite laser links
+            and ground terminals to deliver seamless connectivity. Its mission
+            is to bridge the digital divide, enabling internet access in remote
+            and underserved areas for applications like education, healthcare,
+            business, and emergency response.
+          </p>
+        </div>
+        <div class="domain-subsection">
+          <h3>Global Presence</h3>
+          <p>
+            As of 2025, Starlink operates in over 100 countries, with ongoing
+            expansion driven by satellite launches and regulatory approvals. Key
+            regions include:
+          </p>
+          <ul>
+            <li>
+              <strong>North America</strong>: United States, Canada, Mexico.
+            </li>
+            <li>
+              <strong>Europe</strong>: United Kingdom, Germany, France, Spain,
+              Italy, Ukraine, Poland, Netherlands.
+            </li>
+            <li>
+              <strong>Asia-Pacific</strong>: Australia, New Zealand, Japan,
+              South Korea, Indonesia, Philippines, India (partial approval).
+            </li>
+            <li>
+              <strong>Africa</strong>: Nigeria, Kenya, Ghana, Rwanda,
+              Mozambique, expanding further.
+            </li>
+            <li>
+              <strong>South America</strong>: Brazil, Argentina, Chile,
+              Colombia, Peru.
+            </li>
+            <li>
+              <strong>Other</strong>: Israel, UAE, Fiji, Jamaica, Caribbean
+              islands.
+            </li>
+          </ul>
+          Starlink’s availability map (starlink.com/map) tracks real-time
+          coverage.
+        </div>
+        <div class="domain-subsection">
+          <h3>Services and Activities</h3>
+          <p>Starlink offers diverse services tailored to various needs:</p>
+          <ul>
+            <li>
+              <strong>Residential</strong>: Affordable internet for homes, with
+              user-installed dishes for rural connectivity.
+            </li>
+            <li>
+              <strong>Business</strong>: High-throughput plans for enterprises,
+              ensuring reliable operations.
+            </li>
+            <li>
+              <strong>Mobility</strong>: Connectivity for vehicles, ships
+              (Starlink Maritime), and aircraft (Starlink Aviation).
+            </li>
+            <li>
+              <strong>Starlink Roam</strong>: Portable service for travelers and
+              temporary setups.
+            </li>
+            <li>
+              <strong>Starshield</strong>: Secure communications for government
+              and defense applications.
+            </li>
+          </ul>
+          Starlink supports maritime operations (e.g., cruise ships, cargo
+          vessels), in-flight Wi-Fi for airlines, and remote research stations
+          (e.g., Antarctica).
+        </div>
+        <div class="domain-subsection">
+          <h3>Significant Contributions</h3>
+          <p>Starlink has made impactful contributions globally:</p>
+          <ul>
+            <li>
+              <strong>Ukraine (2022–present)</strong>: Provided critical
+              internet during the Russia-Ukraine conflict, supporting civilians,
+              government, and military operations.
+            </li>
+            <li>
+              <strong>Disaster Response</strong>: Restored connectivity after
+              events like Hurricane Helene (2024, U.S.) and earthquakes in
+              Turkey (2023).
+            </li>
+            <li>
+              <strong>Remote Connectivity</strong>: Enabled education and
+              healthcare in rural Africa (e.g., Nigeria, Kenya) and the Amazon
+              (Brazil).
+            </li>
+            <li>
+              <strong>Scientific Research</strong>: Supported data transfer in
+              remote locations like Antarctic research stations.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Business Cases Section -->
     <section class="projects-section" id="projects">
-      <h2>Business Cases: <span>Case Studies</span></h2>
+      <h2>Business Cases <span>Case Studies</span></h2>
+      <div class="projects-section__intro">
+         
+        <p>
+          Ever wonder what keeps Starlink's internet zipping around the globe?
+          Well, it's not magic (mostly). I've cooked up some clever algorithms
+          to keep those satellites happy and your connection snappy. So, grab a
+          snack, get comfy, and let's imagine ourselves into some hilarious (and
+          sometimes nail-biting) Starlink predicaments...
+        </p>
+      </div>
       <div class="projects-cards">
         <!-- Case 1 -->
         <div class="projects-card-box">
           <div class="projects-card-box__desc">
-            <h4>Rail and Public Transport Connectivity (like ScotRail)</h4>
+            <h4>
+              Predictive Satellite Maintenance using Deep Learning + K-Means
+            </h4>
             <p>
-              Seamless, high-speed internet access for passengers and
-              operational systems on trains and stations.
+              Uses LSTM and K-Means clustering to predict satellite failures and
+              optimize maintenance schedules, reducing downtime.
             </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case1.html">View Details</a>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Case 2 -->
         <div class="projects-card-box">
           <div class="projects-card-box__desc">
-            <h4>Maritime Fleet Internet (Seaspan, US Navy SEA2)</h4>
+            <h4>Dynamic Load Balancing via Minimum Cut–Maximum Flow</h4>
             <p>
-              Reliable satellite-powered connectivity for ships and naval fleets
-              in remote ocean territories.
+              Applies Ford-Fulkerson to optimize bandwidth distribution across
+              satellites, improving throughput.
             </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case2.html">View Details</a>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Case 3 -->
         <div class="projects-card-box">
           <div class="projects-card-box__desc">
-            <h4>Rural 5G-Backed Research Networks (James Hutton Institute)</h4>
+            <h4>PageRank for Prioritized Satellite Communication Paths</h4>
             <p>
-              Advanced 5G network solutions supporting research and innovation
-              in rural and agricultural regions.
+              Uses PageRank with congestion-aware decay and backup nodes to
+              prioritize stable paths, enhancing resilience.
             </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case3.html">View Details</a>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Case 4 -->
         <div class="projects-card-box">
           <div class="projects-card-box__desc">
-            <h4>Construction Site Connectivity (McLaren)</h4>
+            <h4>Routing Optimization using A* Algorithm</h4>
             <p>
-              Deployable internet solutions for remote, large-scale, or
-              temporary construction projects.
+              Uses A* with geographic and congestion heuristics to optimize
+              Starlink routing, prioritizing low-congestion paths.
             </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case4.html">View Details</a>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Case 5 -->
         <div class="projects-card-box">
           <div class="projects-card-box__desc">
-            <h4>Satellite Network Control and Optimization</h4>
+            <h4>Stable User-Satellite Matching</h4>
             <p>
-              Tools and systems for managing, optimizing, and securing satellite
-              communication networks.
+              Applies Gale-Shapley algorithm to ensure stable user-satellite
+              pairings, reducing handovers and improving QoS.
             </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case5.html">View Details</a>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Case 6 -->
         <div class="projects-card-box">
           <div class="projects-card-box__desc">
-            <h4>
-              Edge Node Security in Isolated Networks (Military / Maritime /
-              Research Stations)
-            </h4>
+            <h4>Disaster Recovery Drone Relay Mesh</h4>
             <p>
-              Secure, resilient edge computing and communication solutions for
-              isolated, high-risk environments.
+              Uses Boruvka’s MST algorithm to optimize drone relay paths,
+              reducing power consumption in disaster zones.
             </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case6.html">View Details</a>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 7 -->
+        <div class="projects-card-box">
+          <div class="projects-card-box__desc">
+            <h4>Efficient Historical Network Diagnostics</h4>
+            <p>
+              Uses MO’s Algorithm and neural networks to optimize batched
+              telemetry queries for rapid Starlink diagnostics.
+            </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case7.html">View Details</a>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 8 -->
+        <div class="projects-card-box">
+          <div class="projects-card-box__desc">
+            <h4>Real-Time Traffic Congestion Prediction</h4>
+            <p>
+              Combines RL and Dijkstra’s algorithm to predict urban traffic
+              congestion and suggest optimal routes.
+            </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case8.html">View Details</a>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 9 -->
+        <div class="projects-card-box">
+          <div class="projects-card-box__desc">
+            <h4>Satellite Handover Optimization</h4>
+            <p>
+              Employs Segment Tree and neural networks for proactive satellite
+              handovers, minimizing jitter.
+            </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case9.html">View Details</a>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 10 -->
+        <div class="projects-card-box">
+          <div class="projects-card-box__desc">
+            <h4>Solar Storm Resilience</h4>
+            <p>
+              Predicts satellite drag using ML and optimizes orbit maneuvers
+              with 2D Kadane’s, Subset Sum, and Stable Marriage.
+            </p>
+            <div class="projects-card-box__buttons">
+              <button class="btn btn-primary">
+                <a href="case10.html">View Details</a>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -221,7 +527,9 @@
 
       <div class="contact__github">
         <button>
-          <a href="https://github.com" target="_blank">Visit My GitHub</a>
+          <a href="https://github.com/fardeenvaddo" target="_blank"
+            >Visit My GitHub</a
+          >
           <i class="fab fa-github"></i>
         </button>
       </div>
@@ -229,10 +537,11 @@
 
     <!-- Footer Section -->
     <footer>
-      <p>&copy; 2025 Fardeen Vaddo. All Rights Reserved.</p>
+      <p>© 2025 Fardeen Vaddo. All Rights Reserved.</p>
     </footer>
 
-    <!-- Font Awesome Icons (for GitHub icon) -->
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <!-- Prism.js for Code Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   </body>
 </html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case 4: Routing Optimization using A* Algorithm</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    />
+  </head>
+  <body class="case-page">
+    <h1>Routing Optimization using <span>A* Algorithm</span></h1>
+    <div class="case-section">
+      <h3>Current Scenario</h3>
+      <p>
+        Starlink currently uses routing based on satellite visibility, signal
+        strength, and minimum hops via inter-satellite links (ISLs). These are
+        implemented using greedy or fixed-path algorithms without leveraging
+        geographic or predictive optimization. [Source: IEEE Journal on Starlink
+        Routing Policies, 2023]
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Problem</h3>
+      <ul>
+        <li>Suboptimal routing across long latitudes.</li>
+        <li>High latency paths during congested traffic windows.</li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Proposed Optimization</h3>
+      <p>Use A* (A-Star) Algorithm with a geographic + congestion heuristic:</p>
+      <ol>
+        <li>g(n): Number of hops or latency so far.</li>
+        <li>
+          h(n): Heuristic = predicted latency using satellite distance +
+          historical congestion weight.
+        </li>
+      </ol>
+    </div>
+    <div class="case-section">
+      <h3>Why This Algorithm?</h3>
+      <p>
+        A* guarantees optimality if the heuristic is admissible. Adding a
+        real-time heuristic adapts to network traffic patterns.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Heuristic Design</h3>
+      <p>
+        h(n) = alpha * euclidean_distance(n, target) + beta *
+        avg_congestion(n)<br />
+        Where alpha, beta are tunable weights based on live metrics.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Usage</h3>
+      <p>
+        During a video stream from Alaska to Tokyo, A* finds the optimal ISL
+        sequence minimizing latency while avoiding congested over-Atlantic
+        links.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>System Design</h3>
+      <p>
+        <strong>Diagram Description:</strong> The satellite graph feeds topology
+        and congestion data to the A* engine, which uses a heuristic module
+        combining Haversine distance and congestion metrics to optimize routing
+        paths.
+      </p>
+      <p>
+        <strong>ASCII Sketch:</strong>
+      </p>
+      <pre>
+[Satellite Graph: S1, S2, S3] <----> [A* Engine]
+            |                          |
+            v                          v
+[Congestion DB] <----> [Heuristic Module: Haversine + Congestion]
+      </pre>
+      <p>
+        <strong>Draw.io Instructions:</strong>
+      </p>
+      <ol>
+        <li>Open draw.io (diagrams.net) and select “Flowchart” template.</li>
+        <li>
+          Add nodes: Satellite Graph, A* Engine, Heuristic Module, Congestion
+          DB.
+        </li>
+        <li>
+          Draw bidirectional arrows: Satellite Graph ↔ A* Engine (“Topology
+          Data”), Congestion DB ↔ Heuristic Module (“Congestion Data”),
+          Heuristic Module ↔ A* Engine (“Heuristic Values”).
+        </li>
+        <li>
+          Color-code: Satellite Graph (#B0BEC5), A* Engine (#12BDFF), Heuristic
+          Module (#008080), Congestion DB (#00FF00).
+        </li>
+        <li>Export as routing_optimization_diagram.png.</li>
+      </ol>
+
+      <p>
+        <strong>Reference:</strong> See routing_optimization_diagram.png
+        (generated locally via draw.io).
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Code</h3>
+      <div class="case-code">
+        <pre><code class="language-python">import heapq
+
+def a_star(graph, start, goal, heuristic):
+    """
+    Finds the shortest path between a start and a goal node in a graph
+    using the A* search algorithm.
+
+    Args:
+        graph (dict): An adjacency list representation of the satellite network.
+                      Keys are node IDs (satellites).
+                      Values are lists of tuples (neighbor_node_id, edge_weight).
+                      Edge weights typically represent latency or cost.
+        start (int): The starting satellite node ID.
+        goal (int): The target satellite node ID.
+        heuristic (function): A function that takes two arguments (current_node, goal_node)
+                              and returns an estimated cost (heuristic value) from
+                              current_node to goal_node. This heuristic should be admissible
+                              (never overestimates the true cost).
+
+    Returns:
+        dict: A dictionary mapping each node to the node from which it was reached
+              on the optimal path. Can be used to reconstruct the path by tracing
+              back from the goal node. Returns an empty dictionary if no path is found.
+    """
+    open_set = [(0, start)]
+    came_from = {}
+    g_score = {node: float('inf') for node in graph}
+    g_score[start] = 0
+    while open_set:
+        current_f_score, current = heapq.heappop(open_set)
+        if current == goal:
+            break
+        for neighbor, weight in graph[current]:
+            tentative_g = g_score[current] + weight
+            if tentative_g < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g
+                f_score = tentative_g + heuristic(neighbor, goal)
+                heapq.heappush(open_set, (f_score, neighbor))
+    return came_from
+
+# Example satellite graph
+satellite_graph_example = {
+    0: [(1, 10), (2, 15)],
+    1: [(0, 10), (2, 8), (3, 25)],
+    2: [(0, 15), (1, 8), (3, 12)],
+    3: [(1, 25), (2, 12)]
+}
+
+# Example satellite positions
+satellite_positions_example = {
+    0: (60.0, -150.0),
+    1: (55.0, -145.0),
+    2: (40.0, 140.0),
+    3: (35.0, 135.0)
+}
+
+# Example congestion data
+satellite_congestion_data_example = {
+    0: 0.9,
+    1: 0.5,
+    2: 0.8,
+    3: 0.7
+}
+
+# Haversine distance function
+from math import radians, sin, cos, sqrt, atan2
+def haversine_distance(lat1, lon1, lat2, lon2):
+    R = 6371
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c
+
+# Heuristic function
+def heuristic_function_example(current_node_id, goal_node_id, alpha=0.01, beta=100):
+    """
+    Calculates the heuristic estimate for A* based on geographic distance
+    and estimated congestion.
+
+    Args:
+        current_node_id (int): The ID of the current satellite node.
+        goal_node_id (int): The ID of the goal satellite node.
+        alpha (float): Weight for the geographical distance component.
+        beta (float): Weight for the congestion component.
+
+    Returns:
+        float: The heuristic value (estimated remaining cost).
+    """
+    lat_curr, lon_curr = satellite_positions_example[current_node_id]
+    lat_goal, lon_goal = satellite_positions_example[goal_node_id]
+    geo_cost = haversine_distance(lat_curr, lon_curr, lat_goal, lon_goal)
+    congestion_penalty = 1 / (satellite_congestion_data_example.get(current_node_id, 1.0) + 1e-9)
+    return alpha * geo_cost + beta * congestion_penalty
+
+# Example usage
+start_satellite = 0
+goal_satellite = 2
+path_info = a_star(satellite_graph_example, start_satellite, goal_satellite,
+                   lambda node, goal: heuristic_function_example(node, goal, alpha=0.01, beta=5))
+path = []
+current = goal_satellite
+while current in path_info:
+    path.append(current)
+    current = path_info[current]
+path.append(start_satellite)
+path.reverse()
+if path_info and goal_satellite in path_info:
+    print(f"Path found from S{start_satellite} to S{goal_satellite}: {path}")
+    total_latency = 0
+    for i in range(len(path) - 1):
+        u, v = path[i], path[i+1]
+        for neighbor, weight in satellite_graph_example[u]:
+            if neighbor == v:
+                total_latency += weight
+                break
+    print(f"Total estimated path latency: {total_latency}")
+else:
+    print(f"No path found from S{start_satellite} to S{goal_satellite}.")
+</code></pre>
+      </div>
+    </div>
+    <div class="case-section">
+      <h3>Complexity Analysis</h3>
+      <p>The A* algorithm module has the following complexities:</p>
+      <ul>
+        <li>
+          <strong>Time Complexity</strong>: O((V + E) log V), where V is the
+          number of nodes and E is the number of edges, using a priority queue.
+        </li>
+        <li>
+          <strong>Space Complexity</strong>: O(V + E) for the graph, priority
+          queue, and distance arrays.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Real-World Impact</h3>
+
+      <ul>
+        <li>Reduces overall routing latency.</li>
+        <li>Makes routing dynamic and congestion-aware.</li>
+        <li>Improves QoS (Quality of Service).</li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>References</h3>
+      <ul>
+        <li>IEEE. (2023). Routing Policies in LEO Satellite Constellations.</li>
+        <li>
+          Hart, P. E., Nilsson, N. J., & Raphael, B. (1968). A Formal Basis for
+          the Heuristic Determination of Minimum Cost Paths.
+          <i>IEEE Transactions on Systems Science and Cybernetics</i>.
+        </li>
+      </ul>
+    </div>
+    <a href="index.html" class="back-button">Back to Home</a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  </body>
+</html>

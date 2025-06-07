@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case 1: Predictive Satellite Maintenance</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    />
+  </head>
+  <body class="case-page">
+    <h1>
+      Predictive Satellite Maintenance using
+      <span>Deep Learning + K-Means</span>
+    </h1>
+    <div class="case-section">
+      <h3>Introduction</h3>
+      <p>
+        magine you're managing a colossal fleet of thousands of critical
+        machines, your Starlink satellites, each constantly transmitting vital
+        health data from orbit. The challenge is, right now, we often only
+        detect subtle component degradations or impending failures after they've
+        already started to cause an issue, leading to unexpected satellite
+        downtime and reactive, inefficient repairs. This business case is about
+        shifting from a reactive "break-fix" model to proactive, intelligent
+        maintenance, using predictive analytics to pinpoint potential failures
+        before they occur and optimally schedule preventative actions across the
+        entire constellation.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Current System</h3>
+      <p>
+        Starlink monitors satellite health (e.g., temperature, battery voltage,
+        RF signal) using statistical thresholds, reacting to failures after
+        detection, causing downtime. Telemetry data is collected but not used
+        proactively. [Source: SpaceX Starlink Mission Overview, 2023]
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Problem</h3>
+      <ul>
+        <li>
+          Reactive detection misses early-stage anomalies (e.g., gradual battery
+          degradation).
+        </li>
+        <li>
+          No optimization for maintenance scheduling, leading to overlapping
+          downtimes.
+        </li>
+        <li>Limited generalization of failure patterns across satellites.</li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Proposed Optimization</h3>
+      <p>
+        LSTM Neural Network (PyTorch): Predict future anomalies (e.g., battery
+        failure, thermal issues) from telemetry time-series data. K-Means
+        Clustering: Group satellites with similar predicted anomaly patterns
+        (e.g., all satellites showing battery issues after 13 days in a specific
+        orbit) to schedule joint maintenance, minimizing downtime conflicts.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Why This Algorithm?</h3>
+      <p>
+        LSTM: Captures temporal dependencies in telemetry data, predicting
+        anomalies with high accuracy . K-Means: Clusters satellites based on
+        multi-dimensional anomaly profiles (e.g., failure type, severity,
+        timing), enabling efficient maintenance grouping and scheduling.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>How It’s Optimized</h3>
+      <p>
+        LSTM reduces downtime by detecting anomalies early. K-Means clustering
+        reduces maintenance conflicts by scheduling similar satellites together,
+        compared to reactive scheduling. Example: Satellites with predicted
+        battery issues are clustered and maintained during a single low-traffic
+        window.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Usage</h3>
+      <p>
+        Proactively schedules maintenance for Starlink satellites to ensure
+        reliable connectivity across diverse applications, including:
+      </p>
+      <ul>
+        <li>
+          <strong>Maritime and Aviation</strong>: Schedules maintenance during
+          low-traffic periods to provide consistent internet for ships and
+          aircraft, supporting navigation and passenger services.
+        </li>
+        <li>
+          <strong>Global Enterprise Operations</strong>: Ensures continuous
+          connectivity for businesses in remote regions, supporting
+          data-intensive operations like equipment monitoring.
+        </li>
+        <li>
+          <strong>Scientific Research</strong>: Prevents disruptions during
+          critical data collection periods for remote research stations,
+          facilitating seamless data transfer.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>System Design</h3>
+      <img src="assets/img/case1.png" alt="System Design" />
+      <p>
+        <strong>Diagram Description:</strong> Telemetry data flows to LSTM for
+        anomaly prediction, then to K-Means for clustering and maintenance
+        planning.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Code</h3>
+      <div class="case-code">
+        <pre><code class="language-python">import torch
+import torch.nn as nn
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+
+# LSTM for failure prediction
+class FailureLSTM(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers):
+        super(FailureLSTM, self).__init__()
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size, 3)  # Predict 3 features (e.g., failure prob, type, severity)
+
+    def forward(self, x):
+        out, _ = self.lstm(x)
+        out = self.fc(out[:, -1, :])
+        return out
+
+# Simulate telemetry data
+telemetry = np.random.rand(100, 10, 5)  # 100 satellites, 10 time steps, 5 features
+X = torch.tensor(telemetry, dtype=torch.float32)
+
+# Train LSTM
+model = FailureLSTM(input_size=5, hidden_size=20, num_layers=2)
+criterion = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+for epoch in range(100):
+    outputs = model(X)
+    loss = criterion(outputs, torch.randn(100, 3))  # Simulated target
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+# Get predicted anomaly profiles
+anomaly_profiles = model(X).detach().numpy()  # [100, 3] (prob, type, severity)
+
+# K-Means clustering
+kmeans = KMeans(n_clusters=3, random_state=0)
+clusters = kmeans.fit_predict(anomaly_profiles)
+print(f"Cluster Assignments: {clusters}")
+
+# Visualize clusters
+plt.figure(figsize=(8, 6))
+plt.scatter(anomaly_profiles[:, 0], anomaly_profiles[:, 1], c=clusters, cmap='viridis')
+plt.xlabel('Failure Probability')
+plt.ylabel('Failure Type')
+plt.title('Satellite Maintenance Clusters')
+plt.savefig('maintenance_clusters_plot.png')
+</code></pre>
+      </div>
+    </div>
+
+    <div class="case-section">
+      <h3>Complexity Analysis</h3>
+      <p>The LSTM + K-means module has the following complexities:</p>
+      <ul>
+        <li>
+          <strong>LSTM</strong>: Training time is O(E * T * F * H), where E is
+          epochs, T is sequence length, F is features, H is hidden units.
+          Inference time is O(T * F * H). Space is O(F * H + H^2 + T * H).
+        </li>
+        <li>
+          <strong>K-means</strong>: Time is O(I * N * K * F), where I is
+          iterations, N is data points, K is clusters, F is features. Space is
+          O(N * F + K * F).
+        </li>
+        <li>
+          <strong>Combined</strong>: Time is O(E * T * F * H + I * N * K * F).
+          Space is O(F * H + H^2 + T * H + N * F + K * F).
+        </li>
+      </ul>
+    </div>
+
+    <div class="case-section">
+      <h3>Reflection</h3>
+      <p>
+        LSTM accurately predicts anomalies but requires extensive telemetry
+        data. K-Means efficiently groups satellites for maintenance but assumes
+        fixed cluster numbers. but since real time variables are not taken under
+        consideration and few things are assumed, The case study cannot be said
+        to be absolutely efficient, Therefore depending on such variable the
+        case study can further be improved.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>References</h3>
+      <ul>
+        <li>
+          Hochreiter, S., & Schmidhuber, J. (1997). Long Short-Term Memory.
+          <i>Neural Computation, 9</i>(8), 1735-1780.
+          doi:10.1162/neco.1997.9.8.1735
+        </li>
+        <li>
+          Hastie, T., Tibshirani, R., & Friedman, J. (2009).
+          <i>The Elements of Statistical Learning</i> (2nd ed.). Springer.
+        </li>
+        <li>SpaceX. (2023). Starlink Mission Overview.</li>
+        <li>NASA. (2023). Starlink Performance Review Report.</li>
+      </ul>
+    </div>
+    <a href="index.html" class="back-button">Back to Home</a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  </body>
+</html>

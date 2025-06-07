@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case 10: Efficient Historical Network Diagnostics</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    />
+  </head>
+  <body class="case-page">
+    <h1>
+      Efficient Historical Network Diagnostics using
+      <span>MO’s Algorithm + Statistical Aggregation</span>
+    </h1>
+    <div class="case-section">
+      <h3>Introduction</h3>
+      <p>
+        Imagine Starlink's entire network as a patient whose health records
+        (telemetry data) are constantly being logged. When a doctor (network
+        engineer) needs to understand a recurring symptom (like intermittent
+        slow speeds in a certain area over a few days), they don't want to
+        manually flip through millions of pages. This business case is about
+        building a <strong>super-efficient 'diagnostic assistant'</strong> that
+        can instantly pull out and analyze specific health trends from any
+        period in Starlink's vast historical data, helping us find problems and
+        keep the network performing at its best.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Current System</h3>
+      <p>
+        Starlink satellites and ground stations continuously collect vast
+        amounts of telemetry data (e.g., real-time signal strength, latency,
+        packet loss, bandwidth usage, user activity) and store it in large
+        time-series databases. When network engineers need to diagnose
+        intermittent performance issues, investigate service complaints, or
+        identify long-term trends, they typically run individual, brute-force
+        SQL queries or use custom scripts on this historical data. This approach
+        is often computationally intensive and slow, especially when analyzing
+        multiple, overlapping time windows or specific user/location segments.
+        [Source: Starlink Network Operations Best Practices, 2024]
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Problem</h3>
+      <p>
+        Running numerous ad-hoc, overlapping historical range queries on
+        petabytes of Starlink telemetry data results in:
+      </p>
+      <ul>
+        <li>
+          Excessive computation time: Engineers face significant delays in
+          obtaining diagnostic results, hindering rapid root cause analysis for
+          intermittent network performance issues.
+        </li>
+        <li>
+          Inefficient resource utilization: Repeated scans of the same data
+          segments for different queries waste computing resources and storage
+          I/O.
+        </li>
+        <li>
+          Difficulty in identifying subtle trends: The inability to quickly
+          analyze various data ranges makes it challenging to spot complex,
+          emerging patterns of degradation or anomaly that are not immediately
+          obvious.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Optimization</h3>
+      <p>
+        To address the inefficiencies in historical network diagnostics, we
+        propose applying MO’s Algorithm to efficiently process batched range
+        queries on historical Starlink telemetry data. This algorithm, combined
+        with a Statistical Aggregation Module, allows for rapid calculation of
+        metrics (e.g., average latency, median throughput, distinct error
+        counts) over diverse, user-defined time or user ranges. The telemetry
+        data is pre-indexed by time and relevant network segments (e.g.,
+        satellite ID, beam ID, user terminal ID).
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Why This Algorithm?</h3>
+      <p>
+        MO’s Algorithm, a highly optimized offline range query technique, is
+        chosen for its ability to efficiently answer multiple queries over
+        various data ranges on a static dataset.
+      </p>
+      <ul>
+        <li>
+          Efficiency for Batched Queries: Unlike executing each query
+          independently, MO's reorders queries such that the "sliding window"
+          (representing the current query range) moves minimally between
+          successive queries. This drastically reduces redundant computations.
+        </li>
+        <li>
+          Optimal for Historical Analysis: It is perfectly suited for scenarios
+          where network engineers submit a batch of diagnostic questions about
+          past performance over different time periods or segments, rather than
+          requiring real-time, instantaneous answers for every single data
+          point.
+        </li>
+        <li>
+          Integration with Statistical Aggregation: By combining MO's with a
+          statistical module, we can extract meaningful insights (averages,
+          sums, counts of distinct values) from the efficiently processed
+          ranges, turning raw data into actionable diagnostics. This
+          significantly speeds up Starlink's ability to analyze past network
+          behavior and optimize future operations.
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Usage</h3>
+      <p>
+        A network engineer is investigating persistent, but intermittent,
+        latency spikes reported by users in a specific geographical region over
+        the past week. They submit multiple queries like:
+      </p>
+      <ul>
+        <li>
+          "What was the median latency for users in 'Area A' between 10 AM and
+          11 AM daily for the last 7 days?"
+        </li>
+        <li>
+          "How many unique user terminals reported packet loss above 5% in 'Area
+          B' during peak hours (6 PM - 9 PM) each evening this week?"
+        </li>
+        <li>
+          "Identify the top 5 busiest satellites serving 'Area C' between 2 PM
+          and 4 PM over the last 3 days by average throughput."
+        </li>
+      </ul>
+      <p>
+        Instead of running each query separately, the system collects these
+        queries, sorts them using MO's logic, and then efficiently processes the
+        historical telemetry data. The Statistical Aggregation Module computes
+        the required metrics for each specific range. This provides the engineer
+        with answers far faster than traditional methods, allowing for rapid
+        identification of patterns, correlation with external events (e.g.,
+        weather), or specific satellite/ground station behaviors.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>System Design</h3>
+      <div style="text-align: center">
+        <img src="assets/img/case7.png" alt="System Design" />
+      </div>
+      <p>
+        <strong>Diagram Description:</strong> Raw Starlink Telemetry Data is
+        ingested into a Time-Series Database. Network Engineers submit multiple
+        Diagnostic Queries, which are optimized by the MO’s Query Optimizer. The
+        MO’s Engine, working on the Time-Series Data, efficiently retrieves and
+        processes the necessary data ranges, feeding them into a Statistical
+        Aggregation Module. The aggregated results are then presented as
+        Diagnostic Reports to the Engineers.
+      </p>
+    </div>
+    <div class="case-section">
+      <h3>Code</h3>
+      <div class="case-code">
+        <pre><code class="language-python">import math
+import collections
+import matplotlib.pyplot as plt
+import numpy as np
+
+class MoSolver:
+    """
+    Implements MO's Algorithm for range queries.
+    This version will support flexible aggregation (e.g., sum, count, average).
+    """
+    def __init__(self, data, block_size=None):
+        self.data = data
+        self.n = len(data)
+        self.block_size = block_size or int(math.sqrt(self.n))
+        self.freq_map = collections.defaultdict(int)
+        self.current_sum = 0 # Example aggregation: sum of values
+        self.current_count = 0 # Example aggregation: count of values
+
+    def _add(self, index):
+        # Example: Add value to current sum and increment count
+        val = self.data[index]
+        self.current_sum += val
+        self.current_count += 1
+        self.freq_map[val] += 1 # Track frequency if needed for other stats (e.g., distinct count, mode)
+
+    def _remove(self, index):
+        # Example: Remove value from current sum and decrement count
+        val = self.data[index]
+        self.current_sum -= val
+        self.current_count -= 1
+        self.freq_map[val] -= 1
+        if self.freq_map[val] == 0:
+            del self.freq_map[val]
+
+    def _get_result(self):
+        # Example: Return average for the current range
+        if self.current_count == 0:
+            return 0
+        return self.current_sum / self.current_count
+
+    def process_queries(self, queries):
+        """
+        Processes a list of queries efficiently using MO's Algorithm.
+        Queries are tuples: (left_index, right_index, query_id_for_sorting)
+        """
+        if not queries:
+            return []
+
+        # Sort queries using Mo's heuristic
+        queries_with_ids = []
+        for i, (l, r) in enumerate(queries)):
+            queries_with_ids.append((l, r, i)) # Store original index to return results in order
+
+        queries_with_ids.sort(key=lambda x: (x[0] // self.block_size, x[1] if (x[0] // self.block_size) % 2 == 0 else -x[1]))
+
+        results = [0] * len(queries)
+        curr_l, curr_r = 0, -1 # Initialize empty window
+
+        for l, r, idx in queries_with_ids:
+            while curr_l > l:
+                curr_l -= 1
+                self._add(curr_l)
+            while curr_r < r:
+                curr_r += 1
+                self._add(curr_r)
+            while curr_l < l:
+                self._remove(curr_l)
+                curr_l += 1
+            while curr_r > r:
+                self._remove(curr_r)
+                curr_r -= 1
+            
+            results[idx] = self._get_result()
+        return results
+
+# --- Simulation of Starlink Telemetry Data ---
+# Let's simulate 10,000 data points (e.g., latency readings over time)
+# Data will have some general trends and occasional "spikes" to simulate anomalies
+np.random.seed(42)
+time_points = np.arange(10000)
+# Base latency with some noise
+base_latency = 50 + 10 * np.sin(time_points / 1000) + 5 * np.random.randn(10000)
+
+# Add some "spikes" or anomalies
+for _ in range(50):
+    start = np.random.randint(0, 9950)
+    end = min(start + np.random.randint(10, 50), 9999)
+    spike_height = np.random.uniform(20, 80)
+    base_latency[start:end] += spike_height
+
+# Ensure latency is non-negative
+starlink_telemetry_data = np.maximum(0, base_latency).tolist()
+
+# --- Simulate Diagnostic Queries ---
+# Engineers asking for average latency in various time windows
+diagnostic_queries = [
+    (0, 999),    # First 1000 data points
+    (500, 999), # Overlapping window
+    (1000, 1999),
+    (500, 1749), # Another overlapping window
+    (2000, 2999),
+    (1500, 2500), # Another overlapping
+    (9000, 9999) # End of data
+]
+
+try:
+    # Initialize MoSolver with the telemetry data
+    solver = MoSolver(starlink_telemetry_data)
+
+    # Process the diagnostic queries
+    query_results = solver.process_queries(diagnostic_queries)
+
+    print("--- Diagnostic Query Results (Average Latency) ---")
+    for i, (l, r) in enumerate(diagnostic_queries):
+        print(f"Query {i+1} (Range: [{l}, {r}]): Average Latency = {query_results[i]:.2f} ms")
+
+    # --- Visualization (Conceptual) ---
+    plt.figure(figsize=(12, 6))
+    plt.plot(starlink_telemetry_data, label='Telemetry Data (Latency)', alpha=0.5)
+    
+    colors = plt.cm.get_cmap('viridis', len(diagnostic_queries))
+    for i, (l, r) in enumerate(diagnostic_queries):
+        plt.axvspan(l, r, color=colors(i), alpha=0.2, label=f'Query {i+1} Range (Avg: {query_results[i]:.2f}ms)')
+        plt.text((l+r)/2, max(starlink_telemetry_data)*0.9, f'Q{i+1}', color=colors(i), ha='center', va='top', fontsize=10)
+
+    plt.title('Starlink Telemetry Data with Diagnostic Query Ranges')
+    plt.xlabel('Time Point (Index)')
+    plt.ylabel('Average Latency (ms)')
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
+    plt.savefig('time_series_plot.png')
+    plt.close()
+
+except ValueError as e:
+    print(f"Error: {e}")
+</code></pre>
+      </div>
+    </div>
+    <div class="case-section">
+      <h3>Complexity Analysis</h3>
+      <p>
+        The MO’s Algorithm + Statistical Aggregation module has the following
+        complexities:
+      </p>
+      <ul>
+        <li>
+          <strong>Time Complexity</strong>: O((N + Q) * sqrt(N)), where N is the
+          total number of data points in the historical telemetry stream, and Q
+          is the number of diagnostic queries.
+        </li>
+        <li>
+          <strong>Space Complexity</strong>: O(N + Q) for storing the telemetry
+          data, queries, and auxiliary data structures (e.g., frequency maps or
+          current sums).
+        </li>
+      </ul>
+    </div>
+    <div class="case-section">
+      <h3>Real-World Impact</h3>
+
+      <ul>
+        <li>
+          Accelerated Root Cause Analysis: Dramatically reduces the time
+          engineers spend querying and waiting for results, allowing for faster
+          identification and resolution of complex network issues.
+        </li>
+        <li>
+          Proactive Network Optimization: Enables engineers to efficiently
+          analyze historical trends, identifying potential bottlenecks to
+          optimize network configurations (e.g., beam allocation, routing)
+          before they impact service.
+        </li>
+        <li>
+          Efficient Resource Utilization: Minimizes the computational load on
+          databases and servers by reducing redundant data scans, leading to
+          cost savings.
+        </li>
+        <li>
+          Improved User Experience: By facilitating quicker diagnosis and
+          resolution, the system contributes to a more stable and reliable
+          Internet service for end-users.
+        </li>
+      </ul>
+    </div>
+
+    <div class="case-section">
+      <h3>References</h3>
+      <ul>
+        <li>
+          Arora, A. (2011).
+          <i>MO’s Algorithm for Square Root Decomposition.</i> Competitive
+          Programming Journal.
+        </li>
+        <li>
+          Starlink. (2024). Network Operations Best Practices.
+          <i>Internal Report.</i>
+        </li>
+      </ul>
+    </div>
+    <a href="index.html" class="back-button">Back to Home</a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  </body>
+</html>
