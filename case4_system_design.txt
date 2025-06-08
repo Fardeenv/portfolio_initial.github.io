@@ -1,0 +1,43 @@
+<div class="case-section">
+      <h3>System Design</h3>
+      <p>
+        <strong>Diagram Description:</strong> The satellite graph feeds topology
+        and congestion data to the A* engine, which uses a heuristic module
+        combining Haversine distance and congestion metrics to optimize routing
+        paths.
+      </p>
+      <p>
+        <strong>ASCII Sketch:</strong>
+      </p>
+      <pre>
+[Satellite Graph: S1, S2, S3] <----> [A* Engine]
+            |                          |
+            v                          v
+[Congestion DB] <----> [Heuristic Module: Haversine + Congestion]
+      </pre>
+      <p>
+        <strong>Draw.io Instructions:</strong>
+      </p>
+      <ol>
+        <li>Open draw.io (diagrams.net) and select “Flowchart” template.</li>
+        <li>
+          Add nodes: Satellite Graph, A* Engine, Heuristic Module, Congestion
+          DB.
+        </li>
+        <li>
+          Draw bidirectional arrows: Satellite Graph ↔ A* Engine (“Topology
+          Data”), Congestion DB ↔ Heuristic Module (“Congestion Data”),
+          Heuristic Module ↔ A* Engine (“Heuristic Values”).
+        </li>
+        <li>
+          Color-code: Satellite Graph (#B0BEC5), A* Engine (#12BDFF), Heuristic
+          Module (#008080), Congestion DB (#00FF00).
+        </li>
+        <li>Export as routing_optimization_diagram.png.</li>
+      </ol>
+
+      <p>
+        <strong>Reference:</strong> See routing_optimization_diagram.png
+        (generated locally via draw.io).
+      </p>
+    </div>
